@@ -1,7 +1,7 @@
 import React, { FC, useEffect } from "react"
 
 interface Props {
-	type?: React.HTMLInputTypeAttribute
+	type?: "email" | "text" | "password"
 	leftIcon?: JSX.Element
 	label?: string
 	placeholder?: string

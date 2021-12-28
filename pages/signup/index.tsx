@@ -10,7 +10,7 @@ import GithubSVG from "@/public/github.svg"
 import BackSVG from "@/public/back.svg"
 import { useRouter } from "next/router"
 
-const LoginPage: NextPage = () => {
+const SignUpPage: NextPage = () => {
 	const router = useRouter()
 
 	const validator = (values: any) => {
@@ -22,6 +22,14 @@ const LoginPage: NextPage = () => {
 		)
 			errors.email = "Invalid email"
 		if (!values.password) errors.password = "Password is required"
+		if (!values.confirmPassword)
+			errors.confirmPassword = "Confirm password is required"
+		if (
+			values.password &&
+			values.confirmPassword &&
+			values.password != values.confirmPassword
+		)
+			errors.confirmPassword = "Password not matched"
 
 		return errors
 	}
@@ -31,7 +39,7 @@ const LoginPage: NextPage = () => {
 	}
 
 	const formik = useFormik({
-		initialValues: { email: "", password: "" },
+		initialValues: { email: "", password: "", confirmPassword: "" },
 		validate: validator,
 		onSubmit: handleSubmit,
 	})
@@ -56,9 +64,9 @@ const LoginPage: NextPage = () => {
 						<Input
 							leftIcon={<EmailSVG className="h-5 text-main-blue" />}
 							label="Email"
-							placeholder="Enter your email"
+							placeholder="Enter email"
 							name="email"
-                            type="email"
+							type="email"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.email}
@@ -67,9 +75,9 @@ const LoginPage: NextPage = () => {
 						<Input
 							leftIcon={<PasswordSVG className="h-5 text-main-blue" />}
 							label="Password"
-							placeholder="Enter your password"
+							placeholder="Enter password"
 							name="password"
-                            type="password"
+							type="password"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.password}
@@ -77,18 +85,33 @@ const LoginPage: NextPage = () => {
 								formik.touched.password ? formik.errors.password : undefined
 							}
 						/>
+						<Input
+							leftIcon={<PasswordSVG className="h-5 text-main-blue" />}
+							label="Re-type password"
+							placeholder="Enter re-type password"
+							name="confirmPassword"
+                            type="password"
+							onChange={formik.handleChange}
+							onBlur={formik.handleBlur}
+							value={formik.values.confirmPassword}
+							errorText={
+								formik.touched.confirmPassword
+									? formik.errors.confirmPassword
+									: undefined
+							}
+						/>
 						<button
 							className="bg-main-blue w-full py-2 rounded-lg shadow-lg text-white"
 							type="submit"
 						>
-							Log In
+							Sign Up
 						</button>
 					</form>
 
 					<div className="flex justify-center">
-						<span>Doesn&apos;t have an account yet?</span>
-						<Link href="/signup">
-							<a className="text-main-blue ml-2">Sign up</a>
+						<span>Already have an account?</span>
+						<Link href="/login">
+							<a className="text-main-blue ml-2">Log in</a>
 						</Link>
 					</div>
 
@@ -100,11 +123,11 @@ const LoginPage: NextPage = () => {
 					<div className="flex flex-col space-y-3 mt-6">
 						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
 							<GoogleSVG className="w-6 h-6" />
-							<div>Sign in with Google</div>
+							<div>Sign up with Google</div>
 						</div>
 						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
 							<GithubSVG className="w-6 h-6" />
-							<div>Sign in with Github</div>
+							<div>Sign up with Github</div>
 						</div>
 					</div>
 				</div>
@@ -113,4 +136,4 @@ const LoginPage: NextPage = () => {
 	)
 }
 
-export default LoginPage
+export default SignUpPage

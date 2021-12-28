@@ -8,6 +8,7 @@ import MongoDBSVG from "@/public/mongodb.svg"
 import HambugerSVG from "@/public/hamburger.svg"
 import CloseSVG from "@/public/close.svg"
 import { useState } from "react"
+import Link from "next/link"
 
 const Home: NextPage = () => {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -25,12 +26,16 @@ const Home: NextPage = () => {
 					<div className="hidden lg:block">Database supported</div>
 				</div>
 				<div className="hidden lg:flex space-x-7">
-					<button className="bg-main-blue-light text-main-blue px-4 py-2 rounded-md cursor-pointer">
-						Log in
-					</button>
-					<button className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer">
-						Sign up
-					</button>
+					<Link href="/login">
+						<a className="bg-main-blue-light text-main-blue px-4 py-2 rounded-md cursor-pointer">
+							Log in
+						</a>
+					</Link>
+					<Link href="/signup">
+						<a className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer">
+							Sign up
+						</a>
+					</Link>
 				</div>
 				<div className="lg:hidden block">
 					{isOpen ? (
@@ -43,12 +48,16 @@ const Home: NextPage = () => {
 			<div className="block lg:hidden">
 				{isOpen && (
 					<div className="container flex flex-col space-y-6 fixed top-0 right-0 w-screen pt-28 pb-5 h-screen bg-white z-40">
-						<button className="bg-main-blue-light text-main-blue px-4 py-2 rounded-md cursor-pointer">
-							Log in
-						</button>
-						<button className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer">
-							Sign up
-						</button>
+						<Link href="/login">
+							<a className="bg-main-blue-light text-main-blue px-4 py-2 rounded-md cursor-pointer">
+								Log in
+							</a>
+						</Link>
+						<Link href="/signup">
+							<a className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer">
+								Sign up
+							</a>
+						</Link>
 					</div>
 				)}
 			</div>
@@ -64,9 +73,11 @@ const Home: NextPage = () => {
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor
 						</h4>
-						<button className="bg-main-blue text-white px-5 py-2 rounded-md text-lg">
-							Get Started
-						</button>
+						<Link href="/signup">
+							<a className="bg-main-blue text-white px-5 py-2 rounded-md text-lg">
+								Get Started
+							</a>
+						</Link>
 					</div>
 					<BoardSVG className="hidden sm:block w-full h-auto justify-self-end " />
 				</div>
@@ -77,15 +88,32 @@ const Home: NextPage = () => {
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
 						<div className="flex space-x-5 items-start">
 							<DatabaseSVG className="w-12" />
-							<div>กำหนด Database field</div>
+							<div>
+								<div className="font-bold">กำหนด Database field</div>
+								<div>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+									do eiusmod tempor
+								</div>
+							</div>
 						</div>
 						<div className="flex space-x-5 items-start">
 							<ConfigSVG className="w-12" />
-							<div>ตั้งค่า API Method</div>
+							<div>
+								<div className="font-bold">ตั้งค่า API Method</div>
+								<div>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+								</div>
+							</div>
 						</div>
 						<div className="flex space-x-5 items-start">
 							<RelationSVG className="w-12" />
-							<div>มี Relation</div>
+							<div>
+								<div className="font-bold">มี Relation</div>
+								<div>
+									Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+									do eiusmod tempor incididunt ut labore
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
