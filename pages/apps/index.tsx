@@ -1,5 +1,6 @@
 import Navbar from "@/src/components/Navbar"
 import { NextPage } from "next"
+import Link from "next/link"
 import React from "react"
 
 const Index: NextPage = () => {
@@ -12,9 +13,11 @@ const Index: NextPage = () => {
 				{/* nav */}
 				<div className="flex justify-between items-center">
 					<div className="text-xl">Apps</div>
-					<div className="bg-main-blue text-white px-3 py-2 cursor-pointer rounded-lg">
-						Create App
-					</div>
+					<Link href="/apps/create">
+						<a className="bg-main-blue text-white px-3 py-2 cursor-pointer rounded-lg">
+							Create App
+						</a>
+					</Link>
 				</div>
 
 				{/* apps */}

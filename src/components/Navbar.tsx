@@ -1,11 +1,16 @@
 import React, { FC } from "react"
 import LogoSVG from "@/public/logo.svg"
 import Image from "next/image"
+import { useRouter } from "next/router"
 
 const Navbar: FC = () => {
+	const router = useRouter()
 	return (
 		<nav className="container py-5 shadow-md bg-white fixed top-0 right-0 w-screen flex justify-between items-center z-50">
-			<div className="flex items-center">
+			<div
+				className="flex items-center cursor-pointer"
+				onClick={() => router.push("/apps")}
+			>
 				<LogoSVG className="h-10" />
 				<span className="font-bold ml-2 text-xl">Tront</span>
 			</div>
@@ -17,9 +22,9 @@ const Navbar: FC = () => {
 					width={24}
 					height={24}
 					alt=""
-                    unoptimized
+					unoptimized
 				/>
-                <span>John Doe</span>
+				<span>John Doe</span>
 			</div>
 		</nav>
 	)

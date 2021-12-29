@@ -6,18 +6,24 @@ interface Props {
 	label?: string
 	placeholder?: string
 	value?: string | number
+	defaultValue?: string | number
 	onChange?: React.ChangeEventHandler<HTMLInputElement>
 	onBlur?: React.FocusEventHandler<HTMLInputElement>
 	name?: string
 	id?: string
-    errorText?: string
+	errorText?: string
+	disabled?: boolean
 }
 
 const Input: FC<Props> = (props) => {
 	return (
 		<div className="w-full">
 			{props.label && <div className="mb-2">{props.label}</div>}
-			<div className="border-2 border-gray-200 shadow-md px-3 py-2 rounded-md flex items-center w-full">
+			<div
+				className={`border-2 border-gray-200 shadow-md px-3 py-2 rounded-md flex items-center w-full ${
+					props.disabled ? "bg-gray-100" : "bg-white"
+				}`}
+			>
 				{props.leftIcon && <div className="mr-5">{props.leftIcon}</div>}
 				<input
 					className="focus:border-none focus:outline-none w-full"
@@ -27,10 +33,14 @@ const Input: FC<Props> = (props) => {
 					onChange={props.onChange}
 					onBlur={props.onBlur}
 					value={props.value}
+					defaultValue={props.defaultValue}
 					placeholder={props.placeholder}
+					disabled={props.disabled}
 				/>
 			</div>
-            {props.errorText && <div className="text-main-red mt-2 ml-4">{props.errorText}</div>}
+			{props.errorText && (
+				<div className="text-main-red mt-2 ml-4">{props.errorText}</div>
+			)}
 		</div>
 	)
 }
