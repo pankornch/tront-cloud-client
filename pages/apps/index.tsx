@@ -1,9 +1,11 @@
 import Navbar from "@/src/components/Navbar"
 import { NextPage } from "next"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import React from "react"
 
 const Index: NextPage = () => {
+	const router = useRouter()
 	return (
 		<div>
 			<Navbar />
@@ -43,7 +45,7 @@ const Index: NextPage = () => {
 									/>
 								</div>
 								<div className="text-xs">2021-03-24</div>
-								<button className="bg-main-blue text-white px-3 py-1 rounded-lg w-fit mt-3">
+								<button onClick={() => router.push(`/apps/${i}/console`)} className="bg-main-blue text-white px-3 py-1 rounded-lg w-fit mt-3">
 									Open App
 								</button>
 							</div>

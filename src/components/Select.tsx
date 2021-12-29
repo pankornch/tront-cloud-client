@@ -9,7 +9,7 @@ interface Props {
 	value?: string | number
 	defaultValue?: string | number
 	disabled?: boolean
-    className?: string
+	className?: string
 }
 
 interface IOption {
@@ -47,16 +47,18 @@ const Select: FC<Props> = (props) => {
 
 	const getValue = () => {
 		if (!props.options) return ""
-
+		
 		if (!value && props.defaultValue) {
-			if (typeof props.options === "object") {
+			if (typeof props.options[0] === "object") {
 				return (props.options as IOption[]).find(
 					(e) => e.value === props.defaultValue
 				)?.label
+			} else {
+				return (props.options as any[]).find((e) => e === props.defaultValue)
 			}
 		}
 
-		return value
+		return value || typeof props.options[0] === "object" ? (props.options[0] as IOption).label : props.options[0]
 	}
 
 	return (

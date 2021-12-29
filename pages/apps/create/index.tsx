@@ -2,7 +2,7 @@ import Checkbox from "@/src/components/Checkbox"
 import Input from "@/src/components/Input"
 import Navbar from "@/src/components/Navbar"
 import Select from "@/src/components/Select"
-import { SidebarButton } from "@/src/components/Sidebar"
+import { SidebarButton } from "@/src/components/Sidebars/Sidebar"
 import { useFormik } from "formik"
 import { NextPage } from "next"
 import React from "react"
@@ -38,7 +38,7 @@ const Index: NextPage = () => {
 			{/* Content */}
 			<div className="mt-20 pt-12 container">
 				<div className="text-xl font-bold mb-6">Create App</div>
-				<form onSubmit={formik.handleSubmit} className="w-1/2 space-y-6">
+				<form onSubmit={formik.handleSubmit} className="w-full xl:w-1/2 space-y-6">
 					<Input
 						label="App name"
 						name="name"
@@ -107,7 +107,7 @@ const Index: NextPage = () => {
 
 												<div className="grid grid-cols-4 gap-3 items-center">
 													<Input defaultValue="author" />
-													<Select options={dataTypes} />
+													<Select options={dataTypes}  defaultValue="OBJECT_ID"/>
 													<Checkbox />
 													<Input placeholder="" />
 												</div>
