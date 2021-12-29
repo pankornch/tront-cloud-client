@@ -38,7 +38,10 @@ const Index: NextPage = () => {
 			{/* Content */}
 			<div className="mt-20 pt-12 container">
 				<div className="text-xl font-bold mb-6">Create App</div>
-				<form onSubmit={formik.handleSubmit} className="w-full xl:w-1/2 space-y-6">
+				<form
+					onSubmit={formik.handleSubmit}
+					className="w-full xl:w-1/2 space-y-6"
+				>
 					<Input
 						label="App name"
 						name="name"
@@ -107,7 +110,10 @@ const Index: NextPage = () => {
 
 												<div className="grid grid-cols-4 gap-3 items-center">
 													<Input defaultValue="author" />
-													<Select options={dataTypes}  defaultValue="OBJECT_ID"/>
+													<Select
+														options={dataTypes}
+														defaultValue="OBJECT_ID"
+													/>
 													<Checkbox />
 													<Input placeholder="" />
 												</div>
@@ -146,16 +152,6 @@ const Index: NextPage = () => {
 									https://tront.com/apps/lorem-ipsum-dolor/api/rest
 								</span>
 							</div>
-						</div>
-					</div>
-
-					<div>
-						<div>Public Permission</div>
-						<div className="ml-3">
-							<Checkbox label="Create" />
-							<Checkbox label="Read" />
-							<Checkbox label="Update" />
-							<Checkbox label="Delete" />
 						</div>
 					</div>
 

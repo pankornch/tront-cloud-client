@@ -1,9 +1,13 @@
 import Checkbox from "@/src/components/Checkbox"
 import Input from "@/src/components/Input"
 import Navbar from "@/src/components/Navbar"
+import Select from "@/src/components/Select"
+import Sidebar, { SidebarButton } from "@/src/components/Sidebars/Sidebar"
 import SidebarModel from "@/src/components/Sidebars/SidebarModel"
 import { NextPage } from "next"
 import React from "react"
+import PublicSVG from "@/public/public.svg"
+import PrivateSVG from "@/public/lock.svg"
 
 const Console: NextPage = () => {
 	const models = [
@@ -67,15 +71,15 @@ const Console: NextPage = () => {
 
 				<div>
 					<div>Models</div>
-					<div className="ml-3">
+					<div className="ml-3 space-y-3 mt-3">
 						{models.map((e, i) => (
 							<SidebarModel
 								key={i}
 								title={`${e.name} Model`}
 								label={(open) => (
-									<div className="w-fit cursor-pointer" onClick={open}>
+									<strong className="w-fit cursor-pointer underline underline-offset-4 text-main-blue " onClick={open}>
 										{e.name}
-									</div>
+									</strong>
 								)}
 								model={e}
 							/>
@@ -84,23 +88,89 @@ const Console: NextPage = () => {
 				</div>
 
 				<div>
-					<div>APIs</div>
-					<div className="space-x-3 ml-3 flex">
+					<div className="flex space-x-3">
+						<div>APIs</div>
+						<SidebarButton
+							label={(open) => (
+								<div
+									onClick={open}
+									className="bg-main-blue text-white px-3 py-1 rounded-full cursor-pointer text-xs"
+								>
+									View
+								</div>
+							)}
+							content={
+								<div className="space-y-6">
+									<div>API Configures</div>
+									<div>
+										<Select options={["Books", "Users"]} label="Models" />
+									</div>
+
+									<div>Model Schema</div>
+									<div className="ml-3 space-y-6">
+										<div className="grid grid-cols-2 gap-6">
+											<div>Field name</div>
+											<div>Type</div>
+										</div>
+										<div className="grid grid-cols-2 gap-6">
+											<Input defaultValue="_id" disabled />
+											<Input defaultValue="Object ID" disabled />
+										</div>
+										<div className="grid grid-cols-2 gap-6">
+											<Input defaultValue="name" disabled />
+											<Input defaultValue="String" disabled />
+										</div>
+									</div>
+
+									<div>API Methods</div>
+									<div className="space-y-6 ml-3">
+										<div className="flex items-center space-x-3">
+											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
+											<PublicSVG className="w-3 text-main-blue" />
+											<strong className="w-20 text-main-green">GET</strong>
+											<div>/books</div>
+										</div>
+										<div className="flex items-center space-x-3">
+											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
+											<PublicSVG className="w-3 text-main-blue" />
+											<strong className="w-20 text-main-green">GET</strong>
+											<div>/books/:id</div>
+										</div>
+										<div className="flex items-center space-x-3">
+											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
+											<PrivateSVG className="w-3 text-red-500" />
+											<strong className="w-20 text-yellow-500">PATCH</strong>
+											<div>/books/:id</div>
+										</div>
+										<div className="flex items-center space-x-3">
+											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
+											<PrivateSVG className="w-3 text-red-500" />
+											<strong className="w-20 text-orange-500">PUT</strong>
+											<div>/books/:id</div>
+										</div>
+										<div className="flex items-center space-x-3">
+											<div className="bg-gray-400 text-white rounded-full w-3 h-3"></div>
+											<PrivateSVG className="w-3 text-gray-400" />
+											<strong className="w-20 text-gray-400">DELETE</strong>
+											<div className="text-gray-400">/books/:id</div>
+										</div>
+									</div>
+
+									<Input
+										label="Access token"
+										defaultValue="8f1ecb56c1a076125043bb17eb37da2d"
+										type="password"
+									/>
+								</div>
+							}
+						/>
+					</div>
+					<div className="space-x-3 ml-3 flex mt-3">
 						<Checkbox label="REST:" checked={true} />
 						<input
 							defaultValue="https://tront.com/apps/lorem-ipsum-dolor/api/rest"
 							className="w-full px-3"
 						/>
-					</div>
-				</div>
-
-				<div>
-					<div>Public Permission</div>
-					<div className="ml-3">
-						<Checkbox label="Create" disabled />
-						<Checkbox label="Read" disabled />
-						<Checkbox label="Update" disabled />
-						<Checkbox label="Delete" disabled />
 					</div>
 				</div>
 

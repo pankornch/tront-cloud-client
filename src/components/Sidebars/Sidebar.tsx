@@ -14,7 +14,7 @@ interface PopupProps {
 
 const Popup: FC<PopupProps> = (props) => {
 	return (
-		<div className="w-screen md:w-128 h-screen fixed top-0 right-0 z-40 pt-24 p-6 shadow-lg bg-white">
+		<div className="w-screen md:w-128 h-screen fixed top-0 right-0 z-40 pt-24 p-6 shadow-lg bg-white overflow-auto">
 			<div
 				onClick={() => props.onClose?.call(this)}
 				className="bg-main-red text-white p-2 w-fit rounded-full cursor-pointer absolute top-24 right-6"

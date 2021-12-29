@@ -47,7 +47,7 @@ const Select: FC<Props> = (props) => {
 
 	const getValue = () => {
 		if (!props.options) return ""
-		
+
 		if (!value && props.defaultValue) {
 			if (typeof props.options[0] === "object") {
 				return (props.options as IOption[]).find(
@@ -58,11 +58,16 @@ const Select: FC<Props> = (props) => {
 			}
 		}
 
-		return value || typeof props.options[0] === "object" ? (props.options[0] as IOption).label : props.options[0]
+		if (value) return value
+
+		return typeof props.options[0] === "object"
+			? (props.options[0] as IOption).label
+			: props.options[0]
 	}
 
 	return (
 		<div className={props.className}>
+			{props.label && <div className="mb-2">{props.label}</div>}
 			<div className="relative shadow-lg h-11 w-full rounded-lg flex justify-between items-center px-3 border border-gray-200">
 				<div className="truncate">{getValue()}</div>
 				<ArrowDownSVG className="w-3 ml-2" />
