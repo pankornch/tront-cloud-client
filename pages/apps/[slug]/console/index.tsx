@@ -77,9 +77,15 @@ const Console: NextPage = () => {
 								key={i}
 								title={`${e.name} Model`}
 								label={(open) => (
-									<strong className="w-fit cursor-pointer underline underline-offset-4 text-main-blue " onClick={open}>
-										{e.name}
-									</strong>
+									<div className="flex space-x-3">
+										<strong
+											className="w-fit cursor-pointer underline underline-offset-4 text-main-blue "
+											onClick={open}
+										>
+											{e.name}
+										</strong>
+										<button type="button" className="bg-main-green text-white text-xs px-2 rounded-full">Data</button>
+									</div>
 								)}
 								model={e}
 							/>
