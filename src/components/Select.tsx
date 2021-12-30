@@ -22,6 +22,7 @@ const Select: FC<Props> = (props) => {
 
 	const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		props.onChange?.call(this, e)
+		console.log(e.target.value)
 		setValue(e.target.value)
 	}
 
@@ -31,21 +32,21 @@ const Select: FC<Props> = (props) => {
 		switch (typeof props.options[0]) {
 			case "object":
 				return (props.options as IOption[]).map((e: IOption) => (
-					<option key={e.value} id={e.value.toString()}>
+					<option key={e.value} value={e.value.toString()}>
 						{e.label}
 					</option>
 				))
 
 			default:
 				return (props.options as string[] | number[]).map((e) => (
-					<option key={e} id={e.toString()}>
+					<option key={e} value={e.toString()}>
 						{e}
 					</option>
 				))
 		}
 	}
 
-	const getValue = () => {
+	const getLabel = () => {
 		if (!props.options) return ""
 
 		if (!value && props.defaultValue) {
@@ -58,7 +59,13 @@ const Select: FC<Props> = (props) => {
 			}
 		}
 
-		if (value) return value
+		if (value) {
+			if (typeof props.options[0] === "object") {
+				return (props.options as any[]).find((e) => e.value === value).label
+			} else {
+				return value
+			}
+		}
 
 		return typeof props.options[0] === "object"
 			? (props.options[0] as IOption).label
@@ -69,7 +76,7 @@ const Select: FC<Props> = (props) => {
 		<div className={props.className}>
 			{props.label && <div className="mb-2">{props.label}</div>}
 			<div className="relative shadow-lg h-11 w-full rounded-lg flex justify-between items-center px-3 border border-gray-200">
-				<div className="truncate">{getValue()}</div>
+				<div className="truncate">{getLabel()}</div>
 				<ArrowDownSVG className="w-3 ml-2" />
 				<select
 					className="absolute top-0 left-0 w-full h-full opacity-0"

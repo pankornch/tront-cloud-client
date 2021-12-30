@@ -1,4 +1,5 @@
-import React, { FC, useEffect } from "react"
+import { IModel } from "@/src/types"
+import React, { FC } from "react"
 import Checkbox from "../Checkbox"
 import Input from "../Input"
 import Select from "../Select"
@@ -10,6 +11,7 @@ const dataTypes = [
 	{ label: "Object", value: "OBJECT" },
 	{ label: "Array", value: "ARRAY" },
 	{ label: "Object ID", value: "OBJECT_ID" },
+	{ label: "Date", value: "DATE" },
 ]
 const relationshipTypes = [
 	{ label: "Has One", value: "HAS_ONE" },
@@ -21,28 +23,8 @@ const relationshipTypes = [
 interface Props {
 	title?: string
 	label: (open: () => void) => JSX.Element | JSX.Element[] | string
-	model?: Model
+	model?: IModel
 	canSubmit?: boolean
-}
-
-interface Model {
-	name?: string
-	fields: IField[]
-}
-
-interface IField {
-	name?: string
-	type?: string
-	is_required?: boolean
-	defaultValue?: string | number
-	relationship?: IRelationship
-}
-
-interface IRelationship {
-	type?: string
-	source_field?: string
-	target_field?: string
-	target_model?: string
 }
 
 const SidebarModel: FC<Props> = (props) => {
@@ -77,7 +59,7 @@ const SidebarModel: FC<Props> = (props) => {
 											defaultValue={e.type}
 											disabled
 										/>
-										<Checkbox defaultChecked={e.is_required} disabled />
+										<Checkbox defaultChecked={e.isRequired} disabled />
 										<Input defaultValue={e.defaultValue} disabled />
 									</div>
 									{e.relationship && (
