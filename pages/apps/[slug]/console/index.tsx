@@ -1,203 +1,133 @@
-import Checkbox from "@/src/components/Checkbox"
-import Input from "@/src/components/Input"
+import Checkbox from "@/src/components/Forms/Checkbox"
+import Input from "@/src/components/Forms/Input"
 import Navbar from "@/src/components/Navbar"
-import Select from "@/src/components/Select"
-import Sidebar, { SidebarButton } from "@/src/components/Sidebars/Sidebar"
 import SidebarModel from "@/src/components/Sidebars/SidebarModel"
-import { NextPage } from "next"
+import { GetServerSidePropsContext, NextPage } from "next"
+import { useRouter } from "next/router"
+import { MOCK_APPS } from "@/src/mock"
+import SidebarAPI from "@/src/components/Sidebars/SidebarAPI"
 import React from "react"
-import PublicSVG from "@/public/public.svg"
-import PrivateSVG from "@/public/lock.svg"
 
-const Console: NextPage = () => {
-	const models = [
-		{
-			name: "Users",
-			fields: [
-				{
-					name: "_id",
-					type: "OBJECT_ID",
-					defaultValue: "",
-					is_required: true,
-				},
-				{
-					name: "name",
-					type: "STRING",
-					defaultValue: "",
-					is_required: true,
-				},
-			],
-		},
-		{
-			name: "Books",
-			fields: [
-				{
-					name: "_id",
-					type: "OBJECT_ID",
-					defaultValue: "",
-					is_required: true,
-				},
-				{
-					name: "name",
-					type: "STRING",
-					defaultValue: "",
-					is_required: true,
-				},
-				{
-					name: "author",
-					type: "OBJECT_ID",
-					defaultValue: "",
-					is_required: true,
-					relationship: {
-						type: "BELONG_TO",
-						source_field: "_id",
-						target_field: "_id",
-						target_model: "Books",
-					},
-				},
-			],
-		},
-	]
+interface Props {
+	query: {
+		slug: string
+	}
+}
+
+const Console: NextPage<Props> = (props) => {
+	const router = useRouter()
+	const getApp = () => MOCK_APPS.find((e) => e.slug === props.query.slug)!
+	const app = getApp()
 
 	return (
 		<div>
 			<Navbar />
 			{/* Content */}
-			<div className="container mt-20 py-12 w-full xl:w-1/2 space-y-6">
-				<div className="space-y-6">
-					<Input defaultValue="Lorem ipsum dolor" label="App name" />
-					<Input defaultValue="Lorem ipsum dolor" label="Description" />
-				</div>
+			<div className="container mt-20 py-12 flex justify-center">
+				<div className="xl:w-1/2 w-full space-y-6">
+					<div className="space-y-6">
+						<Input defaultValue="Lorem ipsum dolor" label="App name" disabled />
+						<Input
+							defaultValue="Lorem ipsum dolor"
+							label="Description"
+							disabled
+						/>
+						<Input defaultValue="Lorem ipsum dolor" label="Slug" disabled />
+					</div>
 
-				<div>
-					<div>Models</div>
-					<div className="ml-3 space-y-3 mt-3">
-						{models.map((e, i) => (
-							<SidebarModel
-								key={i}
-								title={`${e.name} Model`}
-								label={(open) => (
-									<div className="flex space-x-3">
-										<strong
-											className="w-fit cursor-pointer underline underline-offset-4 text-main-blue "
-											onClick={open}
-										>
-											{e.name}
-										</strong>
-										<button type="button" className="bg-main-green text-white text-xs px-2 rounded-full">Data</button>
-									</div>
-								)}
-								model={e}
-							/>
+					<div>
+						<div>Models</div>
+						<div className="ml-3 space-y-3 mt-3">
+							{app.modelConfigs!.models!.map((e, i) => (
+								<div key={i} className="flex space-x-2">
+									<div className="underline underline-offset-4">{e.name}</div>
+									<SidebarModel.View
+										label={
+											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
+												View
+											</div>
+										}
+										model={e}
+									/>
+
+									<SidebarAPI.View
+										label={
+											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
+												API
+											</div>
+										}
+										model={e}
+										apiConfig={app.apiConfig!}
+									/>
+
+									<button
+										className="bg-main-green text-xs px-3 py-1 rounded-full text-white"
+										type="button"
+										onClick={() => router.push(`/apps/${app.slug}/data`)}
+									>
+										Data (12)
+									</button>
+								</div>
+							))}
+						</div>
+					</div>
+
+					<div>
+						<div className="flex space-x-3">
+							<div>APIs</div>
+						</div>
+						{app.apiConfig!.apiTypes!.map((e, i) => (
+							<div key={i} className="space-x-2 ml-3 flex mt-3">
+								<Checkbox label={e.type} checked={true} disabled />
+								<input value={e.url} readOnly className="w-full px-2" />
+							</div>
 						))}
 					</div>
-				</div>
 
-				<div>
-					<div className="flex space-x-3">
-						<div>APIs</div>
-						<SidebarButton
-							label={(open) => (
-								<div
-									onClick={open}
-									className="bg-main-blue text-white px-3 py-1 rounded-full cursor-pointer text-xs"
-								>
-									View
-								</div>
-							)}
-							content={
-								<div className="space-y-6">
-									<div>API Configures</div>
-									<div>
-										<Select options={["Books", "Users"]} label="Models" />
-									</div>
+					{app.active ? (
+						<div className="flex space-x-3">
+							<div className="bg-main-green rounded-full w-12 h-6 flex px-1 items-center justify-end">
+								<div className="w-5 h-5 bg-white rounded-full"></div>
+							</div>
+							<span>Enable API</span>
+						</div>
+					) : (
+						<div className="flex space-x-3">
+							<div className="bg-gray-400 rounded-full w-12 h-6 flex px-1 items-center justify-start">
+								<div className="w-5 h-5 bg-white rounded-full"></div>
+							</div>
+							<span>Disable API</span>
+						</div>
+					)}
 
-									<div>Model Schema</div>
-									<div className="ml-3 space-y-6">
-										<div className="grid grid-cols-2 gap-6">
-											<div>Field name</div>
-											<div>Type</div>
-										</div>
-										<div className="grid grid-cols-2 gap-6">
-											<Input defaultValue="_id" disabled />
-											<Input defaultValue="Object ID" disabled />
-										</div>
-										<div className="grid grid-cols-2 gap-6">
-											<Input defaultValue="name" disabled />
-											<Input defaultValue="String" disabled />
-										</div>
-									</div>
-
-									<div>API Methods</div>
-									<div className="space-y-6 ml-3">
-										<div className="flex items-center space-x-3">
-											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
-											<PublicSVG className="w-3 text-main-blue" />
-											<strong className="w-20 text-main-green">GET</strong>
-											<div>/books</div>
-										</div>
-										<div className="flex items-center space-x-3">
-											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
-											<PublicSVG className="w-3 text-main-blue" />
-											<strong className="w-20 text-main-green">GET</strong>
-											<div>/books/:id</div>
-										</div>
-										<div className="flex items-center space-x-3">
-											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
-											<PrivateSVG className="w-3 text-red-500" />
-											<strong className="w-20 text-yellow-500">PATCH</strong>
-											<div>/books/:id</div>
-										</div>
-										<div className="flex items-center space-x-3">
-											<div className="bg-main-green text-white rounded-full w-3 h-3"></div>
-											<PrivateSVG className="w-3 text-red-500" />
-											<strong className="w-20 text-orange-500">PUT</strong>
-											<div>/books/:id</div>
-										</div>
-										<div className="flex items-center space-x-3">
-											<div className="bg-gray-400 text-white rounded-full w-3 h-3"></div>
-											<PrivateSVG className="w-3 text-gray-400" />
-											<strong className="w-20 text-gray-400">DELETE</strong>
-											<div className="text-gray-400">/books/:id</div>
-										</div>
-									</div>
-
-									<Input
-										label="Access token"
-										defaultValue="8f1ecb56c1a076125043bb17eb37da2d"
-										type="password"
-									/>
-								</div>
-							}
+					<div>
+						<Input
+							defaultValue="8f1ecb56c1a076125043bb17eb37da2d"
+							label="Access Token"
+							type="password"
+							disabled
 						/>
 					</div>
-					<div className="space-x-3 ml-3 flex mt-3">
-						<Checkbox label="REST:" checked={true} />
-						<input
-							defaultValue="https://tront.com/apps/lorem-ipsum-dolor/api/rest"
-							className="w-full px-3"
-						/>
-					</div>
-				</div>
 
-				<div>
-					<Input
-						defaultValue="8f1ecb56c1a076125043bb17eb37da2d"
-						label="Access Token"
-						type="password"
-						disabled
-					/>
+					<button
+						onClick={() =>
+							router.push(`/apps/${router.query.slug}/console/edit`)
+						}
+						type="submit"
+						className="bg-main-blue w-full py-2 text-white rounded-lg"
+					>
+						Edit App
+					</button>
 				</div>
-
-				<button
-					type="submit"
-					className="bg-main-blue w-full py-2 text-white rounded-lg"
-				>
-					Edit App
-				</button>
 			</div>
 		</div>
 	)
+}
+
+export const getServerSideProps = ({ query }: GetServerSidePropsContext) => {
+	return {
+		props: { query },
+	}
 }
 
 export default Console

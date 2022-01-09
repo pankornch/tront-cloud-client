@@ -1,4 +1,4 @@
-import Input from "@/src/components/Input"
+import Input from "@/src/components/Forms/Input"
 import { NextPage } from "next"
 import React from "react"
 import EmailSVG from "@/public/email.svg"
@@ -9,40 +9,38 @@ import GoogleSVG from "@/public/google.svg"
 import GithubSVG from "@/public/github.svg"
 import BackSVG from "@/public/back.svg"
 import { useRouter } from "next/router"
+import * as Yup from "yup"
+import useErrorText from "@/src/utils/errorText"
+
+interface IForm {
+	email: string
+	password: string
+	confirmPassword: string
+}
 
 const SignUpPage: NextPage = () => {
 	const router = useRouter()
 
-	const validator = (values: any) => {
-		const errors: any = {}
-		if (!values.email) errors.email = "Email is required"
-		if (
-			values.email &&
-			!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-		)
-			errors.email = "Invalid email"
-		if (!values.password) errors.password = "Password is required"
-		if (!values.confirmPassword)
-			errors.confirmPassword = "Confirm password is required"
-		if (
-			values.password &&
-			values.confirmPassword &&
-			values.password != values.confirmPassword
-		)
-			errors.confirmPassword = "Password not matched"
+	const validator = Yup.object().shape({
+		email: Yup.string().email().required(),
+		password: Yup.string().min(6).required(),
+		confirmPassword: Yup.string().oneOf(
+			[Yup.ref("password"), null],
+			"Password must match"
+		),
+	})
 
-		return errors
-	}
-
-	const handleSubmit = (e: any) => {
-		e.preventDefault()
+	const handleSubmit = (values: IForm) => {
+		router.replace("/apps")
 	}
 
 	const formik = useFormik({
 		initialValues: { email: "", password: "", confirmPassword: "" },
-		validate: validator,
+		validationSchema: validator,
 		onSubmit: handleSubmit,
 	})
+
+	const errorText = useErrorText<IForm>(formik)
 
 	return (
 		<div className="bg-main-blue min-h-screen min-w-full flex items-center justify-center p-0 sm:p-12">
@@ -62,6 +60,7 @@ const SignUpPage: NextPage = () => {
 						className="flex flex-col items-center space-y-6"
 					>
 						<Input
+							className="w-full"
 							leftIcon={<EmailSVG className="h-5 text-main-blue" />}
 							label="Email"
 							placeholder="Enter email"
@@ -70,9 +69,10 @@ const SignUpPage: NextPage = () => {
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.email}
-							errorText={formik.touched.email ? formik.errors.email : undefined}
+							errorText={errorText("email")}
 						/>
 						<Input
+							className="w-full"
 							leftIcon={<PasswordSVG className="h-5 text-main-blue" />}
 							label="Password"
 							placeholder="Enter password"
@@ -81,25 +81,21 @@ const SignUpPage: NextPage = () => {
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.password}
-							errorText={
-								formik.touched.password ? formik.errors.password : undefined
-							}
+							errorText={errorText("password")}
 						/>
 						<Input
+							className="w-full"
 							leftIcon={<PasswordSVG className="h-5 text-main-blue" />}
 							label="Re-type password"
 							placeholder="Enter re-type password"
 							name="confirmPassword"
-                            type="password"
+							type="password"
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							value={formik.values.confirmPassword}
-							errorText={
-								formik.touched.confirmPassword
-									? formik.errors.confirmPassword
-									: undefined
-							}
+							errorText={errorText("confirmPassword")}
 						/>
+
 						<button
 							className="bg-main-blue w-full py-2 rounded-lg shadow-lg text-white"
 							type="submit"

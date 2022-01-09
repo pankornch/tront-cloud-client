@@ -6,6 +6,18 @@ import React from "react"
 
 const Index: NextPage = () => {
 	const router = useRouter()
+
+	const getStatus = (status: boolean) => {
+		return status ? (
+			<div className="bg-main-green text-white rounded-full text-xs px-2 py-1">
+				On
+			</div>
+		) : (
+			<div className="bg-gray-300 text-black rounded-full text-xs px-2 py-1">
+				Off
+			</div>
+		)
+	}
 	return (
 		<div>
 			<Navbar />
@@ -34,7 +46,9 @@ const Index: NextPage = () => {
 							>
 								<div className="flex justify-between items-center">
 									<div className="text-lg font-bold">Lorem ipsum dolor</div>
-									<div className="text-main-green text-lg">Active</div>
+									<div className="text-main-green text-lg">
+										{getStatus(i % 2 === 0)}
+									</div>
 								</div>
 								<div className="text-sm my-3 flex">
 									<span className="font-bold mr-2">REST:</span>
@@ -42,12 +56,24 @@ const Index: NextPage = () => {
 										type="text"
 										defaultValue="http://tront.com/app/lorem-ipsum-dolor/rest"
 										className="px-2 w-full"
+										readOnly
 									/>
 								</div>
-								<div className="text-xs">2021-03-24</div>
-								<button onClick={() => router.push(`/apps/${i}/console`)} className="bg-main-blue text-white px-3 py-1 rounded-lg w-fit mt-3">
-									Open App
-								</button>
+								<span className="text-xs">2021-03-24</span>
+								<div className="flex space-x-3">
+									<button
+										onClick={() => router.push(`/apps/todo_app/console`)}
+										className="bg-main-blue text-white px-3 py-1 rounded-md w-fit mt-3"
+									>
+										Open App
+									</button>
+									<button
+										onClick={() => router.push(`/apps/todo_app/data`)}
+										className="bg-main-green text-white px-3 py-1 rounded-md w-fit mt-3"
+									>
+										Data
+									</button>
+								</div>
 							</div>
 						))}
 				</div>

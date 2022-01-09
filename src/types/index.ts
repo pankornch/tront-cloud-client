@@ -1,3 +1,18 @@
+export interface IApp {
+	_id?: string
+	name?: string
+	slug?: string
+	active?: boolean
+	apiConfig?: IApiConfig
+	modelConfigs?: IModelConfig
+	createdAt?: string | Date
+}
+
+export interface IModelConfig {
+	models?: IModel[]
+	relationships?: IRelationship[]
+}
+
 export interface IModel {
 	_id?: string
 	name?: string
@@ -6,17 +21,26 @@ export interface IModel {
 
 export interface IField {
 	name?: string
-	type?: string
-	isRequired?: boolean
-	defaultValue?: string
-	relationship?: IRelationship
+	type?: ModelTypes
+	required?: boolean
+	defaultValue?: string | number
 }
 
 export interface IRelationship {
-	type?: string
+	type?: RelationshipTypes
 	sourceField?: string
+	sourceModel?: string
 	targetField?: string
 	targetModel?: string
+}
+
+export interface IApiConfig {
+	apiTypes?: IApiType[]
+	schemas?: IApiSchema[]
+}
+export interface IApiType {
+	type?: ApiTypes
+	url?: string
 }
 
 export interface IApiSchema {
@@ -25,9 +49,34 @@ export interface IApiSchema {
 }
 
 export interface IApiMethod {
-	name?: string
+	name?: ApiNames
 	active?: boolean
 	public?: boolean
-	allowToUpdateField?: string[]
 	pathname?: string
 }
+
+export type ModelTypes =
+	| "OBJECT_ID"
+	| "STRING"
+	| "NUMBER"
+	| "DATE"
+	| "OBJECT"
+	| "ARRAY"
+
+export type ApiTypes = "REST"
+
+export type RelationshipTypes =
+	| "HAS_ONE"
+	| "HAS_MANY"
+	| "BELONGS_TO"
+	| "BELONGS_TO_MANY"
+
+export type ApiNames =
+	| "GET_ALL"
+	| "GET_ONE"
+	| "POST"
+	| "PATCH"
+	| "PUT"
+	| "DELETE"
+
+export type ChangeValueHandler<T> = (value: T) => void
