@@ -33,7 +33,7 @@ const SignUpPage: NextPage = () => {
 	const handleSubmit = (values: IForm) => {
 		router.replace("/apps")
 	}
-
+	
 	const formik = useFormik({
 		initialValues: { email: "", password: "", confirmPassword: "" },
 		validationSchema: validator,
