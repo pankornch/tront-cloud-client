@@ -11,6 +11,7 @@ import BackSVG from "@/public/back.svg"
 import { useRouter } from "next/router"
 import * as Yup from "yup"
 import useErrorText from "@/src/utils/errorText"
+import { signIn } from "next-auth/react"
 
 interface IForm {
 	email: string
@@ -25,8 +26,22 @@ const LoginPage: NextPage = () => {
 		password: Yup.string().required(),
 	})
 
-	const handleSubmit = (values: IForm) => {
-		router.replace("/apps")
+	const handleSubmit = async (values: IForm) => {
+		try {
+			await signIn("credentials", {
+				email: values.email,
+				password: values.password,
+				callbackUrl: "/apps",
+			})
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const signInWith = (type: string) => {
+		return () => {
+			signIn(type)
+		}
 	}
 
 	const formik = useFormik({
@@ -99,11 +114,17 @@ const LoginPage: NextPage = () => {
 						<hr className="w-1/2" />
 					</div>
 					<div className="flex flex-col space-y-3 mt-6">
-						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
+						<div
+							onClick={signInWith("google")}
+							className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer"
+						>
 							<GoogleSVG className="w-6 h-6" />
 							<div>Sign in with Google</div>
 						</div>
-						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
+						<div
+							onClick={signInWith("github")}
+							className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer"
+						>
 							<GithubSVG className="w-6 h-6" />
 							<div>Sign in with Github</div>
 						</div>

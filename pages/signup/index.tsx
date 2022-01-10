@@ -11,6 +11,9 @@ import BackSVG from "@/public/back.svg"
 import { useRouter } from "next/router"
 import * as Yup from "yup"
 import useErrorText from "@/src/utils/errorText"
+import { useMutation } from "@apollo/client"
+import { SIGN_UP_MUTATION } from "@/src/gql"
+import { signIn } from "next-auth/react"
 
 interface IForm {
 	email: string
@@ -21,6 +24,8 @@ interface IForm {
 const SignUpPage: NextPage = () => {
 	const router = useRouter()
 
+	const [signUp] = useMutation(SIGN_UP_MUTATION)
+
 	const validator = Yup.object().shape({
 		email: Yup.string().email().required(),
 		password: Yup.string().min(6).required(),
@@ -30,10 +35,35 @@ const SignUpPage: NextPage = () => {
 		),
 	})
 
-	const handleSubmit = (values: IForm) => {
-		router.replace("/apps")
+	const handleSubmit = async (values: IForm) => {
+		try {
+			const { errors } = await signUp({
+				variables: {
+					input: {
+						email: values.email,
+						password: values.password,
+						confirmPassword: values.confirmPassword,
+					},
+				},
+			})
+
+			if (errors) {
+				console.error(errors)
+				return
+			}
+
+			await signIn("credentials", {
+				email: values.email,
+				password: values.password,
+				callbackUrl: "/apps",
+			})
+			
+			router.replace("/apps")
+		} catch (error) {
+			console.error(error)
+		}
 	}
-	
+
 	const formik = useFormik({
 		initialValues: { email: "", password: "", confirmPassword: "" },
 		validationSchema: validator,
