@@ -9,7 +9,6 @@ import HambugerSVG from "@/public/hamburger.svg"
 import CloseSVG from "@/public/close.svg"
 import { useState } from "react"
 import Link from "next/link"
-
 const Home: NextPage = () => {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
 
