@@ -61,7 +61,7 @@ export default NextAuth({
 					variables: {
 						input: {
 							providerAccountId: account.providerAccountId,
-							type: "GITHUB",
+							type: account.provider.toUpperCase(),
 							email: user.email,
 						},
 					},

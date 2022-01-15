@@ -40,7 +40,9 @@ const LoginPage: NextPage = () => {
 
 	const signInWith = (type: string) => {
 		return () => {
-			signIn(type)
+			signIn(type, {
+				callbackUrl: "/apps"
+			})
 		}
 	}
 
