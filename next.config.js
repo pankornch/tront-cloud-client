@@ -8,5 +8,13 @@ module.exports = {
     });
 
     return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/rest/:path*',
+        destination: 'http://localhost:4000/api/rest/:path*' // Proxy to Backend
+      }
+    ]
   }
 }
