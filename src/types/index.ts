@@ -3,7 +3,7 @@ export interface IApp {
 	name?: string
 	slug?: string
 	active?: boolean
-	apiConfig?: IApiConfig
+	apiConfigs?: IApiConfigs
 	modelConfigs?: IModelConfig
 	createdAt?: string | Date
 }
@@ -34,9 +34,9 @@ export interface IRelationship {
 	targetModel?: string
 }
 
-export interface IApiConfig {
+export interface IApiConfigs {
 	apiTypes?: IApiType[]
-	schemas?: IApiSchema[]
+	apiCchemas?: IApiSchema[]
 }
 export interface IApiType {
 	type?: ApiTypes

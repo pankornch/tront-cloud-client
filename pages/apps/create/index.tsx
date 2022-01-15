@@ -1,14 +1,16 @@
-import Checkbox from "@/src/components/Forms/Checkbox"
 import Input from "@/src/components/Forms/Input"
 import Navbar from "@/src/components/Navbar"
 import SidebarModel from "@/src/components/Sidebars/SidebarModel"
+import { CREATE_APP_MUTATION } from "@/src/gql"
+import auth from "@/src/middlewares/auth"
 import { IModel } from "@/src/types"
 import cloneObj from "@/src/utils/cloneObj"
 import useErrorText from "@/src/utils/errorText"
+import { useMutation } from "@apollo/client"
 import { useFormik } from "formik"
 import { NextPage } from "next"
 import { useRouter } from "next/router"
-import React, { useCallback, useState } from "react"
+import React, { useMemo, useState } from "react"
 import * as Yup from "yup"
 
 interface IForm {
@@ -25,9 +27,20 @@ const Index: NextPage = () => {
 		slug: Yup.string().required(),
 	})
 
-	const onSubmit = (value: IForm) => {
+	const [createApp] = useMutation(CREATE_APP_MUTATION)
+
+	const onSubmit = async (value: IForm) => {
 		console.log(value, models)
-		router.push("/apps")
+		const data = {
+			...value,
+			modelConfigs: {
+				models,
+			},
+		}
+
+		const result = await createApp({ variables: { input: data } })
+		console.log(result)
+		// router.push("/apps")
 	}
 
 	const formik = useFormik<IForm>({
@@ -60,8 +73,10 @@ const Index: NextPage = () => {
 		setModels(clone)
 	}
 
-	const getApiUrl = useCallback(() => {
-		const baseUrl = "https://tront.com"
+	const getApiUrl = useMemo(() => {
+		if (!process.browser) return `${process.env.NEXTAUTH_URL}/api/<slug>/rest`
+
+		const baseUrl = `${location.protocol}//${location.host}`
 		return `${baseUrl}/api/${formik.values.slug || "<slug>"}/rest`
 	}, [formik.values.slug])
 
@@ -97,8 +112,8 @@ const Index: NextPage = () => {
 						name="slug"
 						onChange={formik.handleChange}
 						onBlur={formik.handleBlur}
-						placeholder={formik.values.name}
-						value={formik.values.slug}
+						placeholder={formik.values.name.toLowerCase()}
+						value={formik.values.slug.toLowerCase()}
 						errorText={errorText("slug")}
 					/>
 
@@ -133,8 +148,7 @@ const Index: NextPage = () => {
 						<div>APIs</div>
 						<div className="ml-3">
 							<div className="flex space-x-2">
-								<Checkbox label="REST:" checked={true} />
-								<span className="">{getApiUrl()}</span>
+								<span className="">{getApiUrl}</span>
 							</div>
 						</div>
 					</div>
@@ -150,5 +164,11 @@ const Index: NextPage = () => {
 		</div>
 	)
 }
+
+export const getServerSideProps = auth(async () => {
+	return {
+		props: {},
+	}
+})
 
 export default Index

@@ -25,13 +25,21 @@ export const SIGN_IN_MUTATION = gql`
 `
 
 export const OAUTH_MUTATION = gql`
-    mutation ($input: OauthInput!) {
+	mutation ($input: OauthInput!) {
 		oauth(input: $input) {
 			token
 			user {
 				_id
 				email
 			}
+		}
+	}
+`
+
+export const CREATE_APP_MUTATION = gql`
+	mutation ($input: CreateAppInput!) {
+		createApp(input: $input) {
+			_id
 		}
 	}
 `
