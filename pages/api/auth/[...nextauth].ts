@@ -85,7 +85,7 @@ export default NextAuth({
 		async session({ session, token }) {
 			if (token) {
 				session.accessToken = token.accessToken
-				session.trontAccessToken = token.trontAccessToken
+				session.trontAccessToken = token.trontAccessToken as string
 			}
 
 			return session
