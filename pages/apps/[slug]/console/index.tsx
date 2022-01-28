@@ -1,12 +1,13 @@
-import Checkbox from "@/src/components/Forms/Checkbox"
 import Input from "@/src/components/Forms/Input"
 import Navbar from "@/src/components/Navbar"
-import SidebarModel from "@/src/components/Sidebars/SidebarModel"
-import { GetServerSidePropsContext, NextPage } from "next"
+import { NextPage } from "next"
 import { useRouter } from "next/router"
-import { MOCK_APPS } from "@/src/mock"
-import SidebarAPI from "@/src/components/Sidebars/SidebarAPI"
-import React from "react"
+import React, { useMemo } from "react"
+import { useQuery } from "@apollo/client"
+import { APP_BY_ID_QUERY } from "@/src/gql"
+import { IApp, ISchema } from "@/src/types"
+import auth from "@/src/middlewares/auth"
+import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
 
 interface Props {
 	query: {
@@ -16,8 +17,39 @@ interface Props {
 
 const Console: NextPage<Props> = (props) => {
 	const router = useRouter()
-	const getApp = () => MOCK_APPS.find((e) => e.slug === props.query.slug)!
-	const app = getApp()
+	const { data, loading } = useQuery<{ app: IApp }>(APP_BY_ID_QUERY, {
+		variables: {
+			slug: props.query.slug,
+		},
+	})
+
+	const schemas = useMemo<ISchema[] | undefined>(() => {
+		if (!data) return
+
+		// return [
+		// 	{
+		// 		id: "",
+		// 		model: {
+		// 			...data.app.modelConfigs.models[0],
+		// 		},
+		// 	},
+		// ]
+
+		const $schemas = []
+
+		for (const model of data.app.modelConfigs.models) {
+			$schemas.push({
+				model,
+				apiSchema: data.app.apiConfigs.apiSchemas.find(
+					(e) => e.model?._id === model._id
+				),
+			})
+		}
+		console.log($schemas)
+		return $schemas
+	}, [data])
+
+	if (loading) return <>Loading</>
 
 	return (
 		<div>
@@ -26,47 +58,22 @@ const Console: NextPage<Props> = (props) => {
 			<div className="container mt-20 py-12 flex justify-center">
 				<div className="xl:w-1/2 w-full space-y-6">
 					<div className="space-y-6">
-						<Input defaultValue="Lorem ipsum dolor" label="App name" disabled />
+						<Input defaultValue={data?.app.name} label="App name" disabled />
 						<Input
-							defaultValue="Lorem ipsum dolor"
+							defaultValue={data?.app.description}
 							label="Description"
 							disabled
 						/>
-						<Input defaultValue="Lorem ipsum dolor" label="Slug" disabled />
+						<Input defaultValue={data?.app.slug} label="Slug" disabled />
 					</div>
 
 					<div>
-						<div>Models</div>
+						<div>Schema</div>
 						<div className="ml-3 space-y-3 mt-3">
-							{app.modelConfigs!.models!.map((e, i) => (
-								<div key={i} className="flex space-x-2">
-									<div className="underline underline-offset-4">{e.name}</div>
-									<SidebarModel.View
-										label={
-											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
-												View
-											</div>
-										}
-										model={e}
-									/>
-
-									<SidebarAPI.View
-										label={
-											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
-												API
-											</div>
-										}
-										model={e}
-										apiConfig={app.apiConfig!}
-									/>
-
-									<button
-										className="bg-main-green text-xs px-3 py-1 rounded-full text-white"
-										type="button"
-										onClick={() => router.push(`/apps/${app.slug}/data`)}
-									>
-										Data (12)
-									</button>
+							{schemas?.map((e, i) => (
+								<div key={i} className="flex space-x-3">
+									<div>{e.model.name}</div>
+									<SidebarSchema.View schema={e!} />
 								</div>
 							))}
 						</div>
@@ -76,15 +83,14 @@ const Console: NextPage<Props> = (props) => {
 						<div className="flex space-x-3">
 							<div>APIs</div>
 						</div>
-						{app.apiConfig!.apiTypes!.map((e, i) => (
+						{data!.app.apiConfigs!.apiTypes!.map((e, i) => (
 							<div key={i} className="space-x-2 ml-3 flex mt-3">
-								<Checkbox label={e.type} checked={true} disabled />
 								<input value={e.url} readOnly className="w-full px-2" />
 							</div>
 						))}
 					</div>
 
-					{app.active ? (
+					{data!.app.active ? (
 						<div className="flex space-x-3">
 							<div className="bg-main-green rounded-full w-12 h-6 flex px-1 items-center justify-end">
 								<div className="w-5 h-5 bg-white rounded-full"></div>
@@ -124,10 +130,10 @@ const Console: NextPage<Props> = (props) => {
 	)
 }
 
-export const getServerSideProps = ({ query }: GetServerSidePropsContext) => {
+export const getServerSideProps = auth(async ({ query }) => {
 	return {
 		props: { query },
 	}
-}
+})
 
 export default Console

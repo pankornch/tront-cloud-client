@@ -1,53 +1,74 @@
-import React, { FC, useCallback, useEffect, useState } from "react"
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react"
 import CloseSVG from "@/public/close.svg"
+import { createPortal } from "react-dom"
 
 type childrenContent = JSX.Element | JSX.Element[]
 
 interface Props {
-	content: childrenContent
+	children: childrenContent
 }
 
-interface PopupProps {
-	content: childrenContent
+interface PopupProps extends Props {
 	onClose?: () => any
 	show: boolean
 }
 
 const Popup: FC<PopupProps> = (props) => {
+	const [mounted, setMounted] = useState<boolean>(false)
 	const [show, setShow] = useState<boolean>()
-	const animateShow = useCallback(() => {
+	const [shouldClose, setShouldClose] = useState<boolean>(true)
+	const animateShow = useMemo(() => {
 		return show ? "right-0" : "-right-full"
 	}, [show])
 
 	useEffect(() => {
+		setMounted(true)
+
 		setTimeout(() => {
 			setShow(props.show)
 		}, 1)
+
+		if (!props.show) {
+			setTimeout(() => {
+				setShouldClose(true)
+			}, 250)
+		} else {
+			setShouldClose(false)
+		}
+
+		return () => {
+			setMounted(false)
+		}
+
 	}, [props.show])
 
-	return (
-		<>
-			{props.show && (
-				<div
-					className="w-screen h-screen bg-black opacity-25 fixed top-0 right-0 z-30"
-					onClick={props.onClose}
-				></div>
-			)}
-			{props.show && (
-				<div
-					className={`transition-all duration-300 w-screen md:w-128 h-screen fixed top-0 ${animateShow()} z-40 pt-24 p-6 shadow-lg bg-white overflow-auto`}
-				>
-					<div
-						onClick={props.onClose}
-						className="bg-main-red text-white p-2 w-fit rounded-full cursor-pointer absolute top-24 right-6"
-					>
-						<CloseSVG className="w-3" />
-					</div>
-					{props.content}
-				</div>
-			)}
-		</>
-	)
+	return mounted
+		? createPortal(
+				<>
+					{!shouldClose && (
+						<div
+							className="w-screen h-screen bg-black opacity-25 fixed top-0 right-0 z-30"
+							onClick={props.onClose}
+						></div>
+					)}
+
+					{!shouldClose && (
+						<div
+							className={`transition-all duration-300 w-screen md:w-[40rem] h-screen fixed top-0 ${animateShow} z-40 pt-24 p-6 shadow-lg bg-white overflow-auto`}
+						>
+							<div
+								onClick={props.onClose}
+								className="bg-main-red text-white p-2 w-fit rounded-full cursor-pointer absolute top-24 right-6"
+							>
+								<CloseSVG className="w-3" />
+							</div>
+							{props.children}
+						</div>
+					)}
+				</>,
+				document.querySelector("#portal")!
+		  )
+		: null
 }
 
 interface SidebarButtonProps extends Props {
@@ -55,6 +76,7 @@ interface SidebarButtonProps extends Props {
 	initialOpen?: boolean
 	onClose?: () => void
 	handleClose?: (close: () => void) => void
+	onOpen?: () => void
 }
 
 const SidebarButton: FC<SidebarButtonProps> = (props) => {
@@ -64,6 +86,9 @@ const SidebarButton: FC<SidebarButtonProps> = (props) => {
 
 	useEffect(() => {
 		if (!open) props.onClose?.call(this)
+		else {
+			props.onOpen?.call(this)
+		}
 	}, [open])
 
 	useEffect(() => {
@@ -78,11 +103,9 @@ const SidebarButton: FC<SidebarButtonProps> = (props) => {
 				{props.label}
 			</button>
 
-			<Popup
-				content={props.content}
-				onClose={() => setOpen(false)}
-				show={open}
-			/>
+			<Popup onClose={() => setOpen(false)} show={open}>
+				{props.children}
+			</Popup>
 		</div>
 	)
 }

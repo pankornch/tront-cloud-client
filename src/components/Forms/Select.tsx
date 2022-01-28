@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react"
+import React, { FC, useCallback, useEffect, useMemo } from "react"
 import { ChangeValueHandler } from "../../types"
 import ArrowSVG from "@/public/arrow-down.svg"
 
@@ -12,6 +12,7 @@ interface Props {
 	defaultValue?: string | number
 	disabled?: boolean
 	className?: string
+	onInitSelect?: ChangeValueHandler<any>
 }
 
 interface IOption {
@@ -20,10 +21,31 @@ interface IOption {
 }
 
 const Select: FC<Props> = (props) => {
+	useEffect(() => {
+		if (!props.options?.length) return
+		
+		return () => {}
+	}, [props.options])
+
+	useEffect(() => {
+		if (!props.options) return
+		props.onInitSelect?.call(this, getValue(props.options[0]))
+	}, [])
+
 	const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		props.onChange?.call(this, e)
 		props.onChangeValue?.call(this, e.target.value)
 	}
+
+	const getValue = useCallback((value: string | number | IOption) => {
+		switch (typeof value) {
+			case "string":
+			case "number":
+				return value
+			default:
+				return value.value
+		}
+	}, [])
 
 	const renderOptions = useMemo(() => {
 		if (!props.options || !props.options.length) return <></>
@@ -44,6 +66,7 @@ const Select: FC<Props> = (props) => {
 				))
 		}
 	}, [props.options])
+
 	return (
 		<div className={props.className}>
 			{props.label && <div className="mb-1">{props.label}</div>}

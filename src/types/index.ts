@@ -1,58 +1,65 @@
 export interface IApp {
-	_id?: string
-	name?: string
-	slug?: string
-	active?: boolean
-	apiConfigs?: IApiConfigs
-	modelConfigs?: IModelConfig
-	createdAt?: string | Date
+	_id: string
+	name: string
+	description: string
+	slug: string
+	active: boolean
+	apiConfigs: IApiConfigs
+	modelConfigs: IModelConfig
+	createdAt: string | Date
 }
 
 export interface IModelConfig {
-	models?: IModel[]
-	relationships?: IRelationship[]
+	models: IModel[]
+	relationships: IRelationship[]
 }
 
 export interface IModel {
-	_id?: string
-	name?: string
-	fields?: IField[]
+	_id: string
+	name: string
+	fields: IField[]
 }
 
 export interface IField {
-	name?: string
-	type?: ModelTypes
-	required?: boolean
-	defaultValue?: string | number
+	name: string
+	type: ModelTypes
+	required: boolean
+	defaultValue: string | number
 }
 
 export interface IRelationship {
-	type?: RelationshipTypes
-	sourceField?: string
-	sourceModel?: string
-	targetField?: string
-	targetModel?: string
+	type: RelationshipTypes
+	sourceField: string
+	sourceModel: string
+	targetField: string
+	targetModel: string
 }
 
 export interface IApiConfigs {
-	apiTypes?: IApiType[]
-	apiCchemas?: IApiSchema[]
+	apiTypes: IApiType[]
+	apiSchemas: IApiSchema[]
 }
 export interface IApiType {
-	type?: ApiTypes
-	url?: string
+	type: ApiTypes
+	url: string
 }
 
 export interface IApiSchema {
-	model?: string | IModel
-	methods?: IApiMethod[]
+	model?: Partial<IModel>
+	methods: IApiMethod[]
 }
 
 export interface IApiMethod {
-	name?: ApiNames
-	active?: boolean
-	public?: boolean
-	pathname?: string
+	name: ApiNames
+	active: boolean
+	public: boolean
+	pathname: string
+}
+
+export interface ISchema {
+	id?: string
+	model: Partial<IModel>
+	apiSchema?: Partial<IApiSchema>
 }
 
 export type ModelTypes =

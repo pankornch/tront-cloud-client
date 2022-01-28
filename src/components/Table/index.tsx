@@ -1,7 +1,11 @@
 import React, { FC, useMemo } from "react"
+import EmptySVG from "@/public/empty.svg"
+import LoadingSVG from "@/public/loading.svg"
+
 interface Props {
 	keys: string[] | number[]
 	data: any[]
+	loading?: boolean
 }
 
 const Table: FC<Props> = (props) => {
@@ -20,6 +24,33 @@ const Table: FC<Props> = (props) => {
 	}, [props.keys])
 
 	const body = useMemo(() => {
+		if (props.loading) {
+			return (
+				<tbody>
+					<tr>
+						<td colSpan={props.keys.length} className="">
+							<div className="w-full flex flex-col items-center p-12 bg-slate-50 space-y-6 cursor-wait">
+								<LoadingSVG className="h-12 text-main-blue animate-spin" />
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			)
+		}
+
+		if (!props.data.length)
+			return (
+				<tbody>
+					<tr>
+						<td colSpan={props.keys.length} className="">
+							<div className="w-full flex flex-col items-center p-12 bg-slate-50 space-y-6">
+								<EmptySVG className="h-48 text-main-blue" />
+								<div>No data</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			)
 		return (
 			<tbody className="divide-y divide-gray-200">
 				{props.data.map((e, i) => (
@@ -36,7 +67,7 @@ const Table: FC<Props> = (props) => {
 				))}
 			</tbody>
 		)
-	}, [props.data, props.keys])
+	}, [props])
 
 	return (
 		<table className="w-full whitespace-nowrap bg-white divide-y divide-gray-300">

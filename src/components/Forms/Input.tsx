@@ -11,7 +11,7 @@ interface Props {
 	value?: string | number
 	defaultValue?: string | number
 	onChange?: React.ChangeEventHandler<HTMLInputElement>
-	onChangeValue?: ChangeValueHandler<string | number>
+	onChangeValue?: ChangeValueHandler<string>
 	onBlur?: React.FocusEventHandler<HTMLInputElement>
 	name?: string
 	id?: string
@@ -20,6 +20,7 @@ interface Props {
 	required?: boolean
 	className?: string
 	readOnly?: boolean
+	showTextError?: boolean
 }
 
 const Input: FC<Props> = (props) => {
@@ -44,7 +45,17 @@ const Input: FC<Props> = (props) => {
 
 	return (
 		<div className={props.className}>
-			{props.label && <div className="mb-1">{props.label}</div>}
+			{props.label && (
+				<div
+					className={`mb-1 ${
+						props.required
+							? "after:content-['*'] after:ml-0.5 after:text-red-500"
+							: ""
+					}`}
+				>
+					{props.label}
+				</div>
+			)}
 			<div className="relative w-full">
 				{props.leftIcon && (
 					<div className="absolute inset-y-0 left-0 flex items-center pl-3 w-12">
@@ -53,7 +64,9 @@ const Input: FC<Props> = (props) => {
 				)}
 
 				<input
-					className={`input ${props.leftIcon ? "!pl-12" : ""}`}
+					className={`input ${props.leftIcon ? "!pl-12" : ""} ${
+						getErrorText ? "!border-main-red" : ""
+					} `}
 					id={props.id}
 					name={props.name}
 					onBlur={handleBlur}
@@ -67,7 +80,7 @@ const Input: FC<Props> = (props) => {
 					readOnly={props.readOnly}
 				/>
 			</div>
-			{getErrorText && (
+			{getErrorText && props.showTextError && (
 				<div className="text-main-red mt-2 ml-4 truncate">{getErrorText}</div>
 			)}
 		</div>

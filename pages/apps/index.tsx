@@ -94,7 +94,7 @@ const Index: NextPage = () => {
 	)
 }
 
-export const getServerSideProps = auth(async ({ res }) => {
+export const getServerSideProps = auth(async () => {
 	return {
 		props: {},
 	}

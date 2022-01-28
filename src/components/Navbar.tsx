@@ -2,13 +2,14 @@ import React, { FC, useState } from "react"
 import LogoSVG from "@/public/logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/router"
+import { signOut } from "next-auth/react"
 
 const Navbar: FC = () => {
 	const router = useRouter()
 	const [show, setShow] = useState<boolean>(false)
 	const toggleShow = () => setShow((prev) => !prev)
 	const handleSignout = () => {
-		router.replace("/")
+		signOut()
 	}
 
 	return (

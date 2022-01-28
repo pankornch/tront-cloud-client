@@ -1,24 +1,31 @@
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
 import { IField, IModel } from "@/src/types"
 import * as Yup from "yup"
 import cloneObj from "@/src/utils/cloneObj"
 
-const useModel = () => {
-	const [model, setModel] = useState<IModel>({
-		name: "",
-		fields: [{ name: "", type: "STRING", required: false, defaultValue: "" }],
-	})
+const defaultValue = (data?: Partial<IModel>) => {
+	return (
+		data || {
+			name: "",
+			fields: [
+				{ name: "_id", type: "OBJECT_ID", required: false, defaultValue: "" },
+				{ name: "", type: "STRING", required: false, defaultValue: "" },
+			],
+		}
+	)
+}
+
+const isPrimaryKey = (field: IField | string) => {
+	if (typeof field === "string" && field === "_id") return true
+	if (typeof field === "object" && field.name === "_id") return true
+	return false
+}
+
+const useModel = (modelProps?: IModel) => {
+	const [model, setModel] = useState<Partial<IModel>>(defaultValue(modelProps))
+	const cloneRef = useRef<IModel>()
 
 	return useMemo(() => {
-		const handleClearModel = () => {
-			setModel({
-				name: "",
-				fields: [
-					{ name: "", type: "STRING", required: false, defaultValue: "" },
-				],
-			})
-		}
-
 		const handleValidateModel = () => {
 			return Yup.object()
 				.shape({
@@ -34,17 +41,20 @@ const useModel = () => {
 				.validate(model)
 		}
 
-		const handleChangeModelName = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const handleChangeModelName = (value: string) => {
 			setModel((prev) => {
-				prev.name = e.target.value
+				prev.name = value
 				return cloneObj(prev)
 			})
 		}
 
-		const handleChangeField = (e: any, type: keyof IField, index: number) => {
-			const clone = cloneObj<IModel>(model)
-			clone.fields![index][type] =
-				type == "required" ? e.target.checked : e.target.value
+		const handleChangeField = (
+			value: any,
+			type: keyof IField,
+			index: number
+		) => {
+			const clone = cloneObj<any>(model)
+			clone.fields[index][type] = value
 
 			setModel(clone)
 		}
@@ -67,6 +77,18 @@ const useModel = () => {
 			setModel(clone)
 		}
 
+		const handleClearModel = () => {
+			setModel(defaultValue(modelProps))
+		}
+
+		const handleResetModel = () => {
+			setModel(cloneRef.current!)
+		}
+
+		if (modelProps) {
+			cloneRef.current = cloneObj(modelProps)
+		}
+
 		return {
 			model,
 			setModel,
@@ -76,8 +98,10 @@ const useModel = () => {
 			handleClearModel,
 			handleChangeModelName,
 			handleValidateModel,
+			isPrimaryKey,
+			handleResetModel,
 		}
-	}, [model])
+	}, [model, modelProps])
 }
 
 export default useModel

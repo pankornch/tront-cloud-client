@@ -1,15 +1,15 @@
-import React, { useState } from "react"
+import React, { useMemo } from "react"
 import Checkbox from "@/src/components/Forms/Checkbox"
 import Input from "@/src/components/Forms/Input"
 import Navbar from "@/src/components/Navbar"
-import SidebarModel from "@/src/components/Sidebars/SidebarModel"
 import { GetServerSidePropsContext, NextPage } from "next"
 
-import SidebarAPI from "@/src/components/Sidebars/SidebarAPI"
-import { MOCK_APPS } from "@/src/mock"
-import { IApiConfig, IApp } from "@/src/types"
-import cloneObj from "@/src/utils/cloneObj"
+import { IApiConfigs, IApp, ISchema } from "@/src/types"
+
 import { useRouter } from "next/router"
+import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
+import { useQuery } from "@apollo/client"
+import { APP_BY_ID_QUERY } from "@/src/gql"
 
 interface Props {
 	query: {
@@ -18,24 +18,37 @@ interface Props {
 }
 
 const EditApp: NextPage<Props> = (props) => {
-	const getApp = () => MOCK_APPS.find((e) => e.slug === props.query.slug)!
-	const [app, setApp] = useState<IApp>(getApp())
+	const { data, loading } = useQuery<{ app: IApp }>(APP_BY_ID_QUERY, {
+		variables: {
+			slug: props.query.slug,
+		},
+	})
 
 	const router = useRouter()
 
-	const handleSubmit = (value: IApiConfig) => {
-		setApp((prev) => {
-			prev.apiConfig = value
-			return cloneObj(prev)
-		})
+	const handleSubmit = (value: IApiConfigs) => {
+		// setApp((prev) => {
+		// 	prev.apiConfig = value
+		// 	return cloneObj(prev)
+		// })
 	}
 
-	const toggleActive = () => {
-		setApp((prev) => {
-			prev.active = !prev.active
-			return cloneObj(prev)
-		})
-	}
+	const schemas = useMemo<ISchema[] | undefined>(() => {
+		if (!data) return
+
+		const $schemas = []
+
+		for (const model of data.app.modelConfigs.models) {
+			$schemas.push({
+				model,
+				apiSchema: data.app.apiConfigs.apiSchemas.find(
+					(e) => e.model?._id === model._id
+				),
+			})
+		}
+
+		return $schemas
+	}, [data])
 
 	return (
 		<div>
@@ -50,30 +63,12 @@ const EditApp: NextPage<Props> = (props) => {
 					</div>
 
 					<div>
-						<div>Models</div>
+						<div>Schema</div>
 						<div className="ml-3 space-y-3 mt-3">
-							{app.modelConfigs!.models!.map((e, i) => (
-								<div key={i} className="flex space-x-2">
-									<div className="underline underline-offset-4">{e.name}</div>
-									<SidebarModel.Edit
-										label={
-											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
-												Edit Model
-											</div>
-										}
-										model={e}
-									/>
-
-									<SidebarAPI.Edit
-										label={
-											<div className="bg-main-blue text-xs px-3 py-1 rounded-full text-white">
-												Edit API
-											</div>
-										}
-										model={e}
-										apiConfig={app.apiConfig!}
-										onSubmit={handleSubmit}
-									/>
+							{schemas?.map((e, i) => (
+								<div key={i} className="flex space-x-3">
+									<div>{e.model.name}</div>
+									<SidebarSchema.Edit schema={e} />
 								</div>
 							))}
 						</div>
@@ -83,15 +78,15 @@ const EditApp: NextPage<Props> = (props) => {
 						<div className="flex space-x-3">
 							<div>APIs</div>
 						</div>
-						{app.apiConfig!.apiTypes!.map((e, i) => (
+						{data?.app.apiConfigs!.apiTypes!.map((e, i) => (
 							<div key={i} className="space-x-3 ml-3 flex mt-3">
 								<Checkbox label={e.type} checked={true} />
 								<input value={e.url} readOnly className="w-full px-3" />
 							</div>
 						))}
 					</div>
-					<div onClick={toggleActive} className="cursor-pointer">
-						{app.active ? (
+					<div className="cursor-pointer">
+						{data?.app.active ? (
 							<div className="flex space-x-3">
 								<div className="bg-main-green rounded-full w-12 h-6 flex px-1 items-center justify-end">
 									<div className="w-5 h-5 bg-white rounded-full"></div>
@@ -118,7 +113,7 @@ const EditApp: NextPage<Props> = (props) => {
 						<button
 							type="button"
 							className="bg-gray-400 w-full py-2 text-white rounded-lg"
-							onClick={() => router.push(`/apps/${app.slug}/console`)}
+							onClick={() => router.push(`/apps/${data?.app.slug}/console`)}
 						>
 							Cancel
 						</button>

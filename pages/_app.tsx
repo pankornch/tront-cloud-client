@@ -17,6 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 						<link rel="icon" href="/logo.svg" />
 					</Head>
 					<Component {...pageProps} />
+					<div id="portal"></div>
 				</RecoilRoot>
 			</ApolloProvider>
 		</SessionProvider>

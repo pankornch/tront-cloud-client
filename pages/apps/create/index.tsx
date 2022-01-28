@@ -1,9 +1,9 @@
 import Input from "@/src/components/Forms/Input"
 import Navbar from "@/src/components/Navbar"
-import SidebarModel from "@/src/components/Sidebars/SidebarModel"
+import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
 import { CREATE_APP_MUTATION } from "@/src/gql"
 import auth from "@/src/middlewares/auth"
-import { IModel } from "@/src/types"
+import { IApiSchema, IModel, ISchema } from "@/src/types"
 import cloneObj from "@/src/utils/cloneObj"
 import useErrorText from "@/src/utils/errorText"
 import { useMutation } from "@apollo/client"
@@ -30,17 +30,42 @@ const Index: NextPage = () => {
 	const [createApp] = useMutation(CREATE_APP_MUTATION)
 
 	const onSubmit = async (value: IForm) => {
-		console.log(value, models)
+		// const data = {
+		// 	...value,
+		// 	modelConfigs: {
+		// 		models,
+		// 	},
+		// }
+		// const result = await createApp({ variables: { input: data } })
+		// console.log(result)
+		// router.push("/apps")
+		let models: IModel[] = []
+		let apiSchemas: IApiSchema[] = []
+
+		for (const schema of schemas) {
+			// @ts-ignore
+			delete schema.model._id
+			// @ts-ignore
+			models.push(schema!.model!)
+			// @ts-ignore
+			apiSchemas.push(schema!.apiSchema!)
+		}
+
+		const apiTypes = [{ type: "REST", url: `/api/rest/${value.slug}` }]
+
 		const data = {
 			...value,
-			modelConfigs: {
-				models,
+			modelConfigs: { models },
+			apiConfigs: {
+				apiTypes: apiTypes,
+				apiSchemas: apiSchemas,
 			},
 		}
 
+		console.log(data)
 		const result = await createApp({ variables: { input: data } })
 		console.log(result)
-		// router.push("/apps")
+		router.push("/apps")
 	}
 
 	const formik = useFormik<IForm>({
@@ -55,22 +80,25 @@ const Index: NextPage = () => {
 
 	const errorText = useErrorText<IForm>(formik)
 
-	const [models, setModels] = useState<IModel[]>([])
+	const [schemas, setSchemas] = useState<ISchema[]>([])
 
-	const handleDeleteModel = (index: number) => {
-		const clone = cloneObj<IModel[]>(models)
-		clone.splice(index, 1)
-		setModels(clone)
+	const handleInsertSchema = (data: ISchema) => {
+		setSchemas((prev) => [...prev, data])
 	}
 
-	const handleInsertModel = (model: IModel) => {
-		setModels((prev) => [...prev, model])
+	const handleUpdateSchema = (data: ISchema) => {
+		setSchemas((prev) => {
+			const idx = schemas.findIndex((e) => e.id === data.id)
+			prev[idx] = data
+			return cloneObj(prev)
+		})
 	}
 
-	const handleUpdateModel = (model: IModel, index: number) => {
-		const clone = cloneObj<IModel[]>(models)
-		clone[index] = model
-		setModels(clone)
+	const handleDeleteSchema = (id: string) => {
+		setSchemas((prev) => {
+			prev = prev.filter((e) => e.id !== id)
+			return cloneObj(prev)
+		})
 	}
 
 	const getApiUrl = useMemo(() => {
@@ -86,7 +114,7 @@ const Index: NextPage = () => {
 
 			{/* Content */}
 			<div className="mt-20 pt-12 container flex flex-col items-center">
-				<div className="text-xl font-bold mb-6">Create App</div>
+				<div className="text-xl font-medium mb-6">Create App</div>
 				<form
 					onSubmit={formik.handleSubmit}
 					className="w-full xl:w-1/2 space-y-6"
@@ -98,6 +126,7 @@ const Index: NextPage = () => {
 						onBlur={formik.handleBlur}
 						value={formik.values.name}
 						errorText={errorText("name")}
+						required
 					/>
 					<Input
 						label="Desciption"
@@ -115,37 +144,30 @@ const Index: NextPage = () => {
 						placeholder={formik.values.name.toLowerCase()}
 						value={formik.values.slug.toLowerCase()}
 						errorText={errorText("slug")}
+						required
 					/>
 
 					<div>
 						<div className="flex items-center space-x-3">
-							<div>Model</div>
-							<SidebarModel.Create
-								label={
-									<div className="bg-main-blue text-sm px-3 py-1 rounded-full text-white">
-										Create
-									</div>
-								}
-								onSubmit={handleInsertModel}
-							/>
+							<div>Schema</div>
+							<SidebarSchema.Create onSubmit={handleInsertSchema} />
 						</div>
-						<div className="ml-3 space-y-3">
-							{models.map((e, i) => (
-								<SidebarModel.Edit
-									key={i}
-									label={
-										<div className="underline underline-offset-4">{e.name}</div>
-									}
-									model={e}
-									onSubmit={(value) => handleUpdateModel(value, i)}
-									onDelete={() => handleDeleteModel(i)}
-								/>
+						<div className="space-y-3 mt-3">
+							{schemas.map((schema) => (
+								<div key={schema.id} className="flex gap-x-3">
+									<div>{schema.model.name}</div>
+									<SidebarSchema.Edit
+										schema={schema}
+										onSubmit={handleUpdateSchema}
+										onDelete={handleDeleteSchema}
+									/>
+								</div>
 							))}
 						</div>
 					</div>
 
 					<div>
-						<div>APIs</div>
+						<div>API</div>
 						<div className="ml-3">
 							<div className="flex space-x-2">
 								<span className="">{getApiUrl}</span>
