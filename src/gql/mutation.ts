@@ -43,3 +43,35 @@ export const CREATE_APP_MUTATION = gql`
 		}
 	}
 `
+
+export const UPDATE_APP_MUTATIION = gql`
+	mutation ($input: UpdateAppInput!) {
+		updateApp(input: $input) {
+			name
+			slug
+			description
+		}
+	}
+`
+
+export const DELETE_APP_MUTATION = gql`
+	mutation ($input: DeleteAppInput!) {
+		deleteApp(input: $input)
+	}
+`
+
+export const UPDATE_MODEL_MUTATION = gql`
+	mutation ($input: UpdateModelInput!) {
+		updateModel(input: $input) {
+			_id
+		}
+	}
+`
+
+export const UPDATE_API_SCHEMA_MUTATION = gql`
+	mutation ($input: UpdateApiSchemaInput!) {
+		updateApiSchema(input: $input) {
+			_id
+		}
+	}
+`

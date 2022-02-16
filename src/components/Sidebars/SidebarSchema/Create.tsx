@@ -15,6 +15,7 @@ import shortId from "shortid"
 type OnSubmitHandler = (data: ISchema) => void
 
 export interface CreateProps {
+	label?: JSX.Element | string
 	onSubmit?: OnSubmitHandler
 }
 
@@ -68,9 +69,13 @@ const Create: FC<CreateProps> = (props) => {
 	return (
 		<Sidebar.Button
 			label={
-				<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
-					Create
-				</div>
+				props.label ? (
+					<>{props.label}</>
+				) : (
+					<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
+						Create
+					</div>
+				)
 			}
 			handleClose={(close) => (handleClose = close)}
 			onClose={() => {

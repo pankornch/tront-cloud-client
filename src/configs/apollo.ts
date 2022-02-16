@@ -13,14 +13,16 @@ const authLink = setContext(async (_, { headers }) => {
 	return {
 		headers: {
 			...headers,
-			authorization: session?.trontAccessToken ? `Bearer ${session.trontAccessToken}` : "",
+			authorization: session?.trontAccessToken
+				? `Bearer ${session.trontAccessToken}`
+				: "",
 		},
 	}
 })
 
 const client = new ApolloClient({
 	link: authLink.concat(httpLink)!,
-	cache: new InMemoryCache(),
+	cache: new InMemoryCache({ addTypename: false }),
 })
 
 export default client

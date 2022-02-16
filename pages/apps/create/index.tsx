@@ -11,7 +11,9 @@ import { useFormik } from "formik"
 import { NextPage } from "next"
 import { useRouter } from "next/router"
 import React, { useMemo, useState } from "react"
+import Swal from "sweetalert2"
 import * as Yup from "yup"
+import { generateSlug } from "random-word-slugs"
 
 interface IForm {
 	name: string
@@ -30,15 +32,6 @@ const Index: NextPage = () => {
 	const [createApp] = useMutation(CREATE_APP_MUTATION)
 
 	const onSubmit = async (value: IForm) => {
-		// const data = {
-		// 	...value,
-		// 	modelConfigs: {
-		// 		models,
-		// 	},
-		// }
-		// const result = await createApp({ variables: { input: data } })
-		// console.log(result)
-		// router.push("/apps")
 		let models: IModel[] = []
 		let apiSchemas: IApiSchema[] = []
 
@@ -62,9 +55,16 @@ const Index: NextPage = () => {
 			},
 		}
 
-		console.log(data)
-		const result = await createApp({ variables: { input: data } })
-		console.log(result)
+		await createApp({ variables: { input: data } })
+
+		await Swal.fire({
+			title: "Created!",
+			text: "Your app has created.",
+			icon: "success",
+			confirmButtonColor: "#2680fe",
+			timer: 1500,
+		})
+
 		router.push("/apps")
 	}
 
@@ -72,7 +72,7 @@ const Index: NextPage = () => {
 		initialValues: {
 			name: "",
 			description: "",
-			slug: "",
+			slug: generateSlug(),
 		},
 		validationSchema: validator,
 		onSubmit,
@@ -108,6 +108,10 @@ const Index: NextPage = () => {
 		return `${baseUrl}/api/${formik.values.slug || "<slug>"}/rest`
 	}, [formik.values.slug])
 
+	const getSlug = useMemo(() => {
+		return generateSlug()
+	}, [])
+
 	return (
 		<div>
 			<Navbar />
@@ -141,9 +145,10 @@ const Index: NextPage = () => {
 						name="slug"
 						onChange={formik.handleChange}
 						onBlur={formik.handleBlur}
-						placeholder={formik.values.name.toLowerCase()}
+						// placeholder={getSlug}
 						value={formik.values.slug.toLowerCase()}
 						errorText={errorText("slug")}
+						readOnly
 						required
 					/>
 

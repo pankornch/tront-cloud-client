@@ -13,6 +13,7 @@ import { dataTypes } from "@/src/utils/constants"
 import Checkbox from "../../Forms/Checkbox"
 
 export interface ViewProps {
+	label?: JSX.Element | string
 	schema: ISchema
 }
 
@@ -51,9 +52,13 @@ const View: FC<ViewProps> = (props) => {
 	return (
 		<Sidebar.Button
 			label={
-				<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
-					View
-				</div>
+				props.label ? (
+					<>{props.label}</>
+				) : (
+					<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
+						View
+					</div>
+				)
 			}
 		>
 			<div>

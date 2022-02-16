@@ -1368,7 +1368,7 @@
 
 "@types/shortid@^0.0.29":
   version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@types/shortid/-/shortid-0.0.29.tgz#8093ee0416a6e2bf2aa6338109114b3fbffa0e9b"
+  resolved "https://registry.npmjs.org/@types/shortid/-/shortid-0.0.29.tgz"
   integrity sha1-gJPuBBam4r8qpjOBCRFLP7/6Dps=
 
 "@typescript-eslint/parser@^5.0.0":
@@ -3420,7 +3420,7 @@ minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
 
 mongo-objectid@^1.2.2:
   version "1.2.2"
-  resolved "https://registry.yarnpkg.com/mongo-objectid/-/mongo-objectid-1.2.2.tgz#1905eefca5c068b3bcb06685aed92ab201a243a4"
+  resolved "https://registry.npmjs.org/mongo-objectid/-/mongo-objectid-1.2.2.tgz"
   integrity sha512-tgpARlHojuPmCIr+NFke8iShAH342zqpG7H3bUTXImj8z9eOtsGYcgneeFKDLsrlIi/ZJi9r18Wsr1dSwTLlWQ==
 
 ms@2.0.0:
@@ -3445,7 +3445,7 @@ nanoclone@^0.2.1:
 
 nanoid@^2.1.0:
   version "2.1.11"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-2.1.11.tgz#ec24b8a758d591561531b4176a01e3ab4f0f0280"
+  resolved "https://registry.npmjs.org/nanoid/-/nanoid-2.1.11.tgz"
   integrity sha512-s/snB+WGm6uwi0WjsZdaVcuf3KJXlfGl2LcxgwkEwJF0D/BWzVWAZW/XY4bFaiR7s0Jk3FPvlnepg1H1b1UwlA==
 
 nanoid@^3.1.23, nanoid@^3.1.30:
@@ -3997,6 +3997,11 @@ quick-lru@^5.1.1:
   resolved "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz"
   integrity sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
 
+random-word-slugs@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/random-word-slugs/-/random-word-slugs-0.1.6.tgz#1822f059e0e9a91e967a3eaed1e33580df0598cf"
+  integrity sha512-EVPGKyhXTdnBlMCrqBvby3nf9Jz+W/rVuP2nOi68aDZa6VJ2OXvz+VDCwl8jULBLZ1Ht8wscRA+/SogeI9NYGw==
+
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5:
   version "2.1.0"
   resolved "https://registry.npmjs.org/randombytes/-/randombytes-2.1.0.tgz"
@@ -4285,7 +4290,7 @@ shell-quote@1.7.3:
 
 shortid@^2.2.16:
   version "2.2.16"
-  resolved "https://registry.yarnpkg.com/shortid/-/shortid-2.2.16.tgz#b742b8f0cb96406fd391c76bfc18a67a57fe5608"
+  resolved "https://registry.npmjs.org/shortid/-/shortid-2.2.16.tgz"
   integrity sha512-Ugt+GIZqvGXCIItnsL+lvFJOiN7RYqlGy7QE41O3YC1xbNSeDGIRO7xg2JJXIAj1cAGnOeC1r7/T9pgrtQbv4g==
   dependencies:
     nanoid "^2.1.0"
@@ -4494,6 +4499,11 @@ svgo@^2.5.0:
     csso "^4.2.0"
     picocolors "^1.0.0"
     stable "^0.1.8"
+
+sweetalert2@^11.3.10:
+  version "11.3.10"
+  resolved "https://registry.npmjs.org/sweetalert2/-/sweetalert2-11.3.10.tgz"
+  integrity sha512-/3nhG5QCREkPUndAbOF9h1IM7lgCIU/evsNXd/YUfa9eJ04M+hxksxIio8hhtH16UnWd2GvJ+zvFQ8H9hLRhsw==
 
 symbol-observable@^4.0.0:
   version "4.0.0"

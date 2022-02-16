@@ -12,11 +12,13 @@ import Checkbox from "../../Forms/Checkbox"
 import Select from "../../Forms/Select"
 import CloseSVG from "@/public/close.svg"
 import cloneObj from "@/src/utils/cloneObj"
+import Swal from "sweetalert2"
 
 type OnSubmitHandler = (data: ISchema) => void
 type OnDeleteHandler = (id: string) => void
 
 export interface EditProps {
+	label?: JSX.Element | string
 	schema: ISchema
 	onSubmit?: OnSubmitHandler
 	onDelete?: OnDeleteHandler
@@ -67,7 +69,18 @@ export const Edit: FC<EditProps> = (props) => {
 		)
 	}
 
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
+		const result = await Swal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#2680fe",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Yes, update it!",
+		})
+
+		if (!result.isConfirmed) return
 		props.onSubmit?.call(this, { apiSchema, model, id: props.schema.id })
 		handleClose()
 	}
@@ -89,9 +102,13 @@ export const Edit: FC<EditProps> = (props) => {
 	return (
 		<Sidebar.Button
 			label={
-				<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
-					Edit
-				</div>
+				props.label ? (
+					<>{props.label}</>
+				) : (
+					<div className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
+						Edit
+					</div>
+				)
 			}
 			handleClose={(close) => (handleClose = close)}
 		>

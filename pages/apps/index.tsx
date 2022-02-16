@@ -2,15 +2,18 @@ import Navbar from "@/src/components/Navbar"
 import { APPS_QUERY } from "@/src/gql"
 import auth from "@/src/middlewares/auth"
 import { IApp } from "@/src/types"
-import { useQuery } from "@apollo/client"
+import { useLazyQuery, useQuery } from "@apollo/client"
 import { NextPage } from "next"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import React from "react"
+import React, { useEffect } from "react"
 
 const Index: NextPage = () => {
 	const router = useRouter()
-	const { data, loading } = useQuery<{ apps: IApp[] }>(APPS_QUERY)
+	const { data, loading } = useQuery<{ apps: IApp[] }>(APPS_QUERY, {
+		fetchPolicy: "network-only",
+	})
+
 	const getStatus = (status: boolean) => {
 		return status ? (
 			<div className="bg-main-green text-white rounded-full text-xs px-2 py-1">
@@ -55,9 +58,9 @@ const Index: NextPage = () => {
 						>
 							<div className="flex justify-between items-center">
 								<div className="text-lg font-bold">{app.name}</div>
-								<div className="text-main-green text-lg">
+								{/* <div className="text-main-green text-lg">
 									{getStatus(app.active!)}
-								</div>
+								</div> */}
 							</div>
 							{app?.apiConfigs?.apiTypes?.map((api) => (
 								<div key={api.type} className="text-sm my-3 flex">
