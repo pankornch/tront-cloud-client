@@ -60,18 +60,27 @@ export const DELETE_APP_MUTATION = gql`
 	}
 `
 
-export const UPDATE_MODEL_MUTATION = gql`
-	mutation ($input: UpdateModelInput!) {
-		updateModel(input: $input) {
-			_id
+export const CREATE_SCHEMA_MUTATION = gql`
+	mutation ($input: CreateSchemaInput!) {
+		createSchema(input: $input) {
+			model {
+				name
+			}
+		}
+	}
+`
+export const UPDATE_SCHEMA_MUTATION = gql`
+	mutation ($input: UpdateSchemaInput!) {
+		updateSchema(input: $input) {
+			model {
+				name
+			}
 		}
 	}
 `
 
-export const UPDATE_API_SCHEMA_MUTATION = gql`
-	mutation ($input: UpdateApiSchemaInput!) {
-		updateApiSchema(input: $input) {
-			_id
-		}
+export const DELETE_SCHEMA_MUTATION = gql`
+	mutation ($input: DeleteSchemaInput!) {
+		deleteSchema(input: $input)
 	}
 `

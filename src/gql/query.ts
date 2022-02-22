@@ -13,6 +13,7 @@ export const APPS_QUERY = gql`
 					url
 				}
 			}
+			createdAt
 		}
 	}
 `

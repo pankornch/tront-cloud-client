@@ -19,10 +19,10 @@ const Home: NextPage = () => {
 				<div className="flex items-center space-x-20">
 					<div className="flex items-center z-50">
 						<LogoSVG className="h-10" />
-						<span className="font-bold ml-2 text-xl">Tront</span>
+						<span className="font-semibold ml-2 text-xl">Tront</span>
 					</div>
 					<div className="hidden lg:block">Features</div>
-					<div className="hidden lg:block">Database supported</div>
+					{/* <div className="hidden lg:block">Database supported</div> */}
 				</div>
 				<div className="hidden lg:flex space-x-7">
 					<Link href="/login">
@@ -65,13 +65,14 @@ const Home: NextPage = () => {
 				{/*  */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 pt-6 sm:pt-32 items-end gap-x-12">
 					<div className="flex flex-col justify-between items-start h-96">
-						<h1 className="text-5xl lg:text-7xl font-black">
-							Lorem ipsum dolor sit amet, consectetur.
+						<h1 className="font-semibold leading-tight">
+							The easy way to get your own{" "}
+							<span className="text-main-blue underline">RESTful API</span>
 						</h1>
-						<h4 className="">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-							eiusmod tempor
-						</h4>
+						<h6 className="">
+							Tront is website that helps you to get you own RESTful API by
+							simple config
+						</h6>
 						<Link href="/signup">
 							<a className="bg-main-blue text-white px-5 py-2 rounded-md text-lg">
 								Get Started
@@ -82,8 +83,8 @@ const Home: NextPage = () => {
 				</div>
 
 				{/* Features */}
-				<div className="">
-					<h2 className="text-3xl font-bold mb-8">Features</h2>
+				{/* <div className="">
+					<h3 className="font-semibold mb-8">Features</h3>
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-12">
 						<div className="flex space-x-5 items-start">
 							<DatabaseSVG className="w-12" />
@@ -115,10 +116,10 @@ const Home: NextPage = () => {
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> */}
 
 				{/* Database & API Supported */}
-				<div>
+				{/* <div>
 					<h2 className="text-3xl font-bold mb-8">Database & API Supported</h2>
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-y-12">
 						<div>
@@ -133,16 +134,15 @@ const Home: NextPage = () => {
 							<h3 className="text-xl font-bold mb-5">API Supported</h3>
 							<ul className="ml-5 space-y-5">
 								<li>REST</li>
-								<li>GraphQL</li>
 							</ul>
 						</div>
 					</div>
-				</div>
+				</div> */}
 				{/* Footer */}
 				<footer className="py-12 flex justify-between items-center">
 					<div className="flex items-center">
 						<LogoSVG className="h-10" />
-						<span className="font-bold ml-2">Tront</span>
+						<span className="font-semibold ml-2 text-xl">Tront</span>
 					</div>
 					<div>2021 Tront. All rights reserved</div>
 				</footer>

@@ -96,7 +96,7 @@ export const Edit: FC<EditProps> = (props) => {
 	}
 
 	const handleDelete = () => {
-		props.onDelete?.call(this, props.schema.id!)
+		props.onDelete?.call(this, props.schema.model._id || props.schema.id!)
 	}
 
 	return (

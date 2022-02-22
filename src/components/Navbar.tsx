@@ -2,12 +2,13 @@ import React, { FC, useState } from "react"
 import LogoSVG from "@/public/logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/router"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 
 const Navbar: FC = () => {
 	const router = useRouter()
 	const [show, setShow] = useState<boolean>(false)
 	const toggleShow = () => setShow((prev) => !prev)
+	const {data, status} = useSession()
 	const handleSignout = () => {
 		signOut()
 	}
@@ -36,7 +37,7 @@ const Navbar: FC = () => {
 						alt=""
 						unoptimized
 					/>
-					<span>John Doe</span>
+					<span>{data?.user?.email}</span>
 				</button>
 				<div
 					className={`absolute right-0 -bottom-12 bg-white w-48 rounded-md shadow-md border-2 border-gray-200 transition-all duration-100

@@ -1,3 +1,4 @@
+import LoadingPage from "@/src/components/Loading/LoadingPage"
 import Navbar from "@/src/components/Navbar"
 import { APPS_QUERY } from "@/src/gql"
 import auth from "@/src/middlewares/auth"
@@ -31,7 +32,16 @@ const Index: NextPage = () => {
 		return url.replace(process.env.NEXT_PUBLIC_BASE_URL_API!, $url)
 	}
 
-	if (loading) return <>Loading</>
+	const dateFormat = (date: string) => {
+		// dd/mm/yyyy
+		const _d = new Date(date)
+		const prefix = (n: number) => (n < 10 ? "0" + n : n)
+		return `${prefix(_d.getDate())}/${prefix(
+			_d.getMonth() + 1
+		)}/${_d.getFullYear()}`
+	}
+
+	if (loading) return <LoadingPage />
 	return (
 		<div>
 			<Navbar />
@@ -57,7 +67,7 @@ const Index: NextPage = () => {
 							className="shadow-lg rounded-lg px-6 py-4 border border-gray-100 hover:border-main-blue-light"
 						>
 							<div className="flex justify-between items-center">
-								<div className="text-lg font-bold">{app.name}</div>
+								<div className="text-lg font-semibold">{app.name}</div>
 								{/* <div className="text-main-green text-lg">
 									{getStatus(app.active!)}
 								</div> */}
@@ -65,16 +75,19 @@ const Index: NextPage = () => {
 							{app?.apiConfigs?.apiTypes?.map((api) => (
 								<div key={api.type} className="text-sm my-3 flex">
 									<span className="font-bold mr-2">{api.type}:</span>
-									<input
+									{/* <input
 										type="text"
 										defaultValue={getApiUrl(api.url!)}
 										className="px-2 w-full"
 										readOnly
-									/>
+									/> */}
+									<Link href={getApiUrl(api.url!)}>{getApiUrl(api.url!)}</Link>
 								</div>
 							))}
 
-							<span className="text-xs">2021-03-24</span>
+							<span className="text-xs">
+								{dateFormat(app.createdAt as string)}
+							</span>
 							<div className="flex space-x-3">
 								<button
 									onClick={() => router.push(`/apps/${app.slug}/console`)}

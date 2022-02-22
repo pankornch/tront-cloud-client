@@ -19,9 +19,10 @@ import {
 import {
 	APP_BY_ID_QUERY,
 	DELETE_APP_MUTATION,
-	UPDATE_API_SCHEMA_MUTATION,
+	CREATE_SCHEMA_MUTATION,
 	UPDATE_APP_MUTATIION,
-	UPDATE_MODEL_MUTATION,
+	UPDATE_SCHEMA_MUTATION,
+	DELETE_SCHEMA_MUTATION,
 } from "@/src/gql"
 import { IApp } from "@/src/types"
 import auth from "@/src/middlewares/auth"
@@ -35,6 +36,7 @@ import { useFormik } from "formik"
 import * as Yup from "yup"
 import Swal from "sweetalert2"
 import { ISchema } from "@/src/types"
+import LoadingPage from "@/src/components/Loading/LoadingPage"
 
 interface Props {
 	query: {
@@ -231,10 +233,10 @@ const App: FC = () => {
 }
 
 const Schema: FC = () => {
-	const { app, refetch } = useContext(Context)!
-	const [updateModel] = useMutation(UPDATE_MODEL_MUTATION)
-	const [updateApiSchema] = useMutation(UPDATE_API_SCHEMA_MUTATION)
-	// const [createModel] = useMutation()
+	const { app, refetch } = useContext(Context)
+	const [createSchema] = useMutation(CREATE_SCHEMA_MUTATION)
+	const [updateSchema] = useMutation(UPDATE_SCHEMA_MUTATION)
+	const [deleteSchema] = useMutation(DELETE_SCHEMA_MUTATION)
 
 	const schemas = useMemo(() => {
 		if (!app) return []
@@ -242,26 +244,16 @@ const Schema: FC = () => {
 	}, [app])
 
 	const handleUpdate = async (schema: ISchema) => {
-
-		await Promise.all([
-			await updateModel({
-				variables: {
-					input: {
-						_id: schema.model._id,
-						name: schema.model.name,
-						fields: schema.model.fields
-					},
+		console.log(schema)
+		await updateSchema({
+			variables: {
+				input: {
+					model: schema.model,
+					apiSchema: schema.apiSchema,
+					appId: app!._id,
 				},
-			}),
-			await updateApiSchema({
-				variables: {
-					input: {
-						modelId: schema.model._id,
-						methods: schema.apiSchema?.methods,
-					},
-				},
-			}),
-		])
+			},
+		})
 
 		refetch?.call(this)
 
@@ -274,10 +266,57 @@ const Schema: FC = () => {
 		})
 	}
 
-	const handleCreate = async () => {
-		await Promise.all([
-			
-		])
+	const handleCreate = async (schema: ISchema) => {
+		await createSchema({
+			variables: {
+				input: {
+					model: schema.model,
+					apiSchema: schema.apiSchema,
+					appId: app!._id,
+				},
+			},
+		})
+		refetch?.call(this)
+		await Swal.fire({
+			title: "Created!",
+			text: "Your schema has created.",
+			icon: "success",
+			confirmButtonColor: "#2680fe",
+			timer: 1500,
+		})
+	}
+
+	const handleDelete = async (id: String) => {
+		const result = await Swal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#2680fe",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Yes, delete it!",
+		})
+
+		if (result.isConfirmed) {
+			await deleteSchema({
+				variables: {
+					input: {
+						modelId: id,
+						appId: app!._id,
+					},
+				},
+			})
+
+			refetch?.call(this)
+
+			Swal.fire({
+				title: "Deleted!",
+				text: "Your app has been deleted.",
+				icon: "success",
+				confirmButtonColor: "#2680fe",
+				timer: 1500,
+			})
+		}
 	}
 
 	return (
@@ -298,6 +337,7 @@ const Schema: FC = () => {
 							New Schema
 						</div>
 					}
+					onSubmit={handleCreate}
 				/>
 				{schemas.map((schema) => (
 					<div key={schema.model._id} className="flex items-center gap-x-3">
@@ -326,6 +366,7 @@ const Schema: FC = () => {
 							}
 							schema={schema}
 							onSubmit={handleUpdate}
+							onDelete={handleDelete}
 						/>
 
 						<Link href={`/apps/${app!.slug}/data`}>
@@ -347,7 +388,7 @@ const Console: NextPage<Props> = (props) => {
 		},
 	})
 
-	if (loading) return <div>Loading</div>
+	if (loading) return <LoadingPage />
 
 	if (!data) return <div>no data</div>
 

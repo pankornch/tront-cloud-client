@@ -11,6 +11,8 @@ import auth from "@/src/middlewares/auth"
 import axios from "axios"
 import Input from "@/src/components/Forms/Input"
 import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
+import LoadingPage from "@/src/components/Loading/LoadingPage"
+import Link from "next/link"
 
 interface Props {
 	query: {
@@ -77,7 +79,7 @@ const Index: NextPage<Props> = (props) => {
 			case "Table":
 				return (
 					<div className="w-full overflow-x-scroll shadow-lg rounded-lg overflow-hidden">
-						<Table data={apiData} keys={getKeys} loading={apiLoading} />
+						<Table keys={getKeys} loading={apiLoading} data={apiData} />
 					</div>
 				)
 			default:
@@ -114,7 +116,7 @@ const Index: NextPage<Props> = (props) => {
 		return data?.app.modelConfigs.models.find((e) => e._id === selectedModel)
 	}, [data?.app.modelConfigs.models, selectedModel])
 
-	if (loading) return <>loading</>
+	if (loading) return <LoadingPage />
 
 	return (
 		<div>
@@ -133,7 +135,16 @@ const Index: NextPage<Props> = (props) => {
 						className="w-40"
 						onChangeValue={(e) => setSelectedModel(e)}
 					/>
-					{schema && <SidebarSchema.View schema={schema} />}
+					{schema && (
+						<>
+							<SidebarSchema.View schema={schema} />
+							<Link href={`/apps/${props.query.slug}/console`}>
+								<a className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
+									console
+								</a>
+							</Link>
+						</>
+					)}
 				</div>
 				<div>
 					<Input
@@ -142,21 +153,27 @@ const Index: NextPage<Props> = (props) => {
 					/>
 				</div>
 
-				<div className="flex space-x-3 items-end">
-					<Select
-						options={["Table", "JSON"]}
-						label="Data"
-						value={selectData}
-						onChangeValue={setSelectData}
-						className="w-40"
-					/>
-					<Select
-						label="Limit"
-						options={[10, 50, 100]}
-						value={selectPageSize}
-						onChangeValue={(val) => setSelectPageSize(~~val)}
-						className="w-20"
-					/>
+				<div className="flex justify-between items-end">
+					<div className="flex space-x-3 items-end">
+						<Select
+							options={["Table", "JSON"]}
+							label="Data"
+							value={selectData}
+							onChangeValue={setSelectData}
+							className="w-40"
+						/>
+						<Select
+							label="Limit"
+							options={[10, 50, 100]}
+							value={selectPageSize}
+							onChangeValue={(val) => setSelectPageSize(~~val)}
+							className="w-20"
+						/>
+					</div>
+					<div className="flex gap-x-3">
+						<button className="bg-main-blue px-3 py-1 rounded-md text-white">Insert</button>
+						<button className="bg-main-blue px-3 py-1 rounded-md text-white">Mock</button>
+					</div>
 				</div>
 
 				{renderDataComponent()}
