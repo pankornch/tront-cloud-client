@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.7",
+    "@netlify/plugin-nextjs": "^4.2.7",
     "@svgr/webpack": "^6.1.2",
     "axios": "^0.24.0",
     "formik": "^2.2.9",
