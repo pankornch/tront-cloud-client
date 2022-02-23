@@ -29,6 +29,7 @@ const Index: NextPage = () => {
 
 	const getApiUrl = (url: string) => {
 		const $url = `${location.protocol}//${location.host}`
+		console.log(url, $url)
 		return url.replace(process.env.NEXT_PUBLIC_BASE_URL_API!, $url)
 	}
 
