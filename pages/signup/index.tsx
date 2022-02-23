@@ -1,6 +1,6 @@
 import Input from "@/src/components/Forms/Input"
 import { NextPage } from "next"
-import React from "react"
+import React, { useEffect } from "react"
 import EmailSVG from "@/public/email.svg"
 import PasswordSVG from "@/public/lock.svg"
 import { useFormik } from "formik"
@@ -13,7 +13,8 @@ import * as Yup from "yup"
 import useErrorText from "@/src/utils/errorText"
 import { useMutation } from "@apollo/client"
 import { SIGN_UP_MUTATION } from "@/src/gql"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
+import LoadingPage from "@/src/components/Loading/LoadingPage"
 
 interface IForm {
 	email: string
@@ -23,6 +24,7 @@ interface IForm {
 
 const SignUpPage: NextPage = () => {
 	const router = useRouter()
+	const {data, status} = useSession()
 
 	const [signUp] = useMutation(SIGN_UP_MUTATION)
 
@@ -71,6 +73,16 @@ const SignUpPage: NextPage = () => {
 	})
 
 	const errorText = useErrorText<IForm>(formik)
+
+	useEffect(() => {
+		if (data) {
+			router.replace("/apps")
+		}
+	}, [data])
+
+	if (status == "loading") {
+		return <LoadingPage></LoadingPage>
+	}
 
 	return (
 		<div className="bg-main-blue min-h-screen min-w-full flex items-center justify-center p-0 sm:p-12">
