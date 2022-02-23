@@ -13,7 +13,7 @@ module.exports = {
     return [
       {
         source: '/api/rest/:path*',
-        destination: 'http://localhost:4000/api/rest/:path*' // Proxy to Backend
+        destination: `${process.env.NEXT_PUBLIC_GRAPHQL_URL}/api/rest/:path*` // Proxy to Backend
       }
     ]
   }
