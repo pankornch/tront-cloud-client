@@ -118,7 +118,7 @@ const View: FC<ViewProps> = (props) => {
 					<div className="mb-3">API</div>
 					<div className="gap-x-3 mb-3 flex">
 						<div className="text-sm">Active</div>
-						<div className="text-sm">Public</div>
+						{/* <div className="text-sm">Public</div> */}
 						<div className="text-sm">Method</div>
 						<div className="text-sm ml-6">Endpoint</div>
 					</div>
@@ -128,9 +128,9 @@ const View: FC<ViewProps> = (props) => {
 								<div className="cursor-pointer w-9">
 									{statusDot(method.active)}
 								</div>
-								<div className="cursor-pointer w-9 ml-3">
+								{/* <div className="cursor-pointer w-9 ml-3">
 									{statusIcon(method.public)}
-								</div>
+								</div> */}
 								<span
 									className={`${getApiMethodColor(
 										method.name

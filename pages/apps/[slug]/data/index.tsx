@@ -52,21 +52,18 @@ const Index: NextPage<Props> = (props) => {
 
 	const [insertForm, setInsertForm] = useState<Record<string, string>>({})
 
-	// useEffect(() => {
-	// 	if (!data || !selectedModel) return
-
-	// 	fetchApi()
-	// }, [data, models, selectedModel])
+	useEffect(() => {
+		if (!data || !selectedModel) return
+		fetchApi()
+	}, [data, models, selectedModel])
 
 	useEffect(() => {
 		if (!router.query.model && !data) return
 		if (!data) return
-
 		if (!data.app.modelConfigs.models.length) {
 			setIsEmptyData(true)
 			return
 		}
-
 		const model = data.app.modelConfigs.models.find(
 			(e) => e.name === router.query.model
 		)
@@ -76,7 +73,6 @@ const Index: NextPage<Props> = (props) => {
 			})
 		}
 		setSelectedModel(model?._id || data.app.modelConfigs.models[0]._id)
-		fetchApi()
 	}, [router.query.model, data])
 
 	const apiUrl = useMemo(() => {
@@ -102,7 +98,7 @@ const Index: NextPage<Props> = (props) => {
 			case "Table":
 				return (
 					<div className="w-full overflow-x-scroll shadow-lg rounded-lg overflow-hidden">
-						<Table keys={getKeys} loading={apiLoading} data={apiData.data} />
+						<Table keys={getKeys} loading={apiLoading} data={apiData?.data} />
 					</div>
 				)
 			default:
@@ -143,6 +139,19 @@ const Index: NextPage<Props> = (props) => {
 
 	const fetchApi = useCallback(
 		async (props?: { page?: number; limit?: number }) => {
+			if (
+				!schema?.apiSchema?.methods?.find((e) => e.name === "GET_ALL")?.active
+			) {
+				Toast({
+					type: "ERROR",
+					title: `Method GET for ${schema?.model.name} API doesn't active!`,
+					body: "Enable method GET to fetch data",
+				})
+				setApiLoading(false)
+				setApiData(null)
+				return
+			}
+
 			if (!data || !currentModel) return
 			setApiLoading(true)
 			const slug = data!.app.slug
@@ -161,6 +170,15 @@ const Index: NextPage<Props> = (props) => {
 
 	const handleInsertData = async () => {
 		try {
+			if (!schema?.apiSchema?.methods?.find(e => e.name === "POST")?.active) {
+				handleCloseInsertSidebar()
+				Toast({
+					type: "ERROR",
+					title: `Method POST for ${schema?.model.name} API doesn't active!`,
+					body: "Enable method POST to insert data",
+				})
+				return 
+			}
 			await axios.post(apiUrl, insertForm)
 			Toast({ type: "SUCCESS", title: "Data Inserted" })
 			fetchApi()

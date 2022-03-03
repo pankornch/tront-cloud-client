@@ -18,11 +18,10 @@ const Navbar: FC = () => {
 	return (
 		<nav className="container py-5 shadow-md bg-white fixed top-0 right-0 w-screen flex justify-between items-center z-50">
 			<div
-				className="flex items-center cursor-pointer"
+				className="cursor-pointer"
 				onClick={() => router.push("/apps")}
 			>
 				<LogoSVG className="h-10" />
-				<span className="font-semibold ml-2 text-xl">Tront</span>
 			</div>
 
 			<div className="relative">

@@ -25,7 +25,7 @@ const Index: NextPage = () => {
 		loading,
 		refetch: appRefetch,
 	} = useQuery<{ apps: IApp[] }>(APPS_QUERY, {
-		// fetchPolicy: "network-only",
+		fetchPolicy: "network-only",
 	})
 
 	const appInvites = useGetAppInvite()
