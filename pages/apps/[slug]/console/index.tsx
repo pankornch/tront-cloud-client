@@ -494,7 +494,9 @@ const Members: FC = () => {
 						ref={ref}
 						className="absolute top-20 left-0 bg-white z-50 w-full rounded-lg p-2 shadow-lg space-y-2"
 					>
-						{loading && <LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />}
+						{loading && (
+							<LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />
+						)}
 						{!loading &&
 							data?.searchUser?.map((u) => (
 								<div key={u._id}>
@@ -556,23 +558,34 @@ const Console: NextPage<Props> = (props) => {
 
 	if (loading) return <LoadingPage />
 
-	if (!data) return <div>no data</div>
-
 	return (
-		<Context.Provider value={{ app: data.app, refetch }}>
+		<>
 			<Navbar />
-			<div className="container mt-12 py-12 flex justify-center">
-				<div className="xl:w-1/2 w-full">
-					<Tab
-						tabs={[
-							{ title: "App", body: <App /> },
-							{ title: "Schema", body: <Schema /> },
-							{ title: "Members", body: <Members /> },
-						]}
-					/>
+			{!data ? (
+				<div className="w-screen h-screen flex flex-col justify-center items-center">
+
+						<h3 className="">No App found!</h3>
+						<Link href="/apps">
+							<a className="mt-3 text-xl text-main-blue underline">Back to apps</a>
+						</Link>
+
 				</div>
-			</div>
-		</Context.Provider>
+			) : (
+				<Context.Provider value={{ app: data!.app, refetch }}>
+					<div className="container mt-12 py-12 flex justify-center">
+						<div className="xl:w-1/2 w-full">
+							<Tab
+								tabs={[
+									{ title: "App", body: <App /> },
+									{ title: "Schema", body: <Schema /> },
+									{ title: "Members", body: <Members /> },
+								]}
+							/>
+						</div>
+					</div>
+				</Context.Provider>
+			)}
+		</>
 	)
 }
 

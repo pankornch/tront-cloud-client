@@ -96,7 +96,7 @@ const SignUpPage: NextPage = () => {
 		<div className="bg-main-blue min-h-screen min-w-full flex items-center justify-center p-0 sm:p-12">
 			<div className="bg-white py-12 px-8 sm:p-16 w-screen sm:w-128 rounded-lg shadow-lg h-screen sm:h-auto relative">
 				<div
-					onClick={() => router.back()}
+					onClick={() => router.replace("/")}
 					className="absolute top-12 left-5 sm:top-16 sm:left-14 cursor-pointer hover:bg-gray-100 rounded-full"
 				>
 					<BackSVG className="w-8" />

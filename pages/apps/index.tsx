@@ -65,13 +65,14 @@ const Index: NextPage = () => {
 		})
 
 		Toast({ type: "SUCCESS", title: "Invite accepted" })
-		
+
 		await Promise.all([appRefetch(), appInvites.refetch()])
 
 		close()
 	}
 
 	if (loading) return <LoadingPage />
+
 	return (
 		<div>
 			<Navbar />
