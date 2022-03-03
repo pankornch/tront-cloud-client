@@ -65,7 +65,7 @@ const Index: NextPage = () => {
 			timer: 1500,
 		})
 
-		router.push("/apps")
+		router.push(`/apps/${data.slug}/console`)
 	}
 
 	const formik = useFormik<IForm>({
@@ -152,7 +152,7 @@ const Index: NextPage = () => {
 						required
 					/>
 
-					<div>
+					{/* <div>
 						<div className="flex items-center space-x-3">
 							<div>Schema</div>
 							<SidebarSchema.Create onSubmit={handleInsertSchema} />
@@ -169,7 +169,7 @@ const Index: NextPage = () => {
 								</div>
 							))}
 						</div>
-					</div>
+					</div> */}
 
 					<div>
 						<div>API</div>

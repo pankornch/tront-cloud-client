@@ -24,7 +24,7 @@ interface IForm {
 
 const SignUpPage: NextPage = () => {
 	const router = useRouter()
-	const {data, status} = useSession()
+	const { data, status } = useSession()
 
 	const [signUp] = useMutation(SIGN_UP_MUTATION)
 
@@ -59,7 +59,7 @@ const SignUpPage: NextPage = () => {
 				password: values.password,
 				callbackUrl: "/apps",
 			})
-			
+
 			router.replace("/apps")
 		} catch (error) {
 			console.error(error)
@@ -82,6 +82,14 @@ const SignUpPage: NextPage = () => {
 
 	if (status == "loading") {
 		return <LoadingPage></LoadingPage>
+	}
+
+	const signInWith = (type: string) => {
+		return () => {
+			signIn(type, {
+				callbackUrl: "/apps",
+			})
+		}
 	}
 
 	return (
@@ -159,11 +167,17 @@ const SignUpPage: NextPage = () => {
 						<hr className="w-1/2" />
 					</div>
 					<div className="flex flex-col space-y-3 mt-6">
-						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
+						<div
+							onClick={signInWith("google")}
+							className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer"
+						>
 							<GoogleSVG className="w-6 h-6" />
 							<div>Sign up with Google</div>
 						</div>
-						<div className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer">
+						<div
+							onClick={signInWith("github")}
+							className="flex items-center space-x-3 border border-gray-200 px-4 py-2 rounded-md hover:shadow-lg cursor-pointer"
+						>
 							<GithubSVG className="w-6 h-6" />
 							<div>Sign up with Github</div>
 						</div>

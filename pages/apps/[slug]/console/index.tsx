@@ -8,13 +8,16 @@ import React, {
 	useCallback,
 	useContext,
 	useMemo,
+	useRef,
 	useState,
 } from "react"
 import {
 	ApolloQueryResult,
 	OperationVariables,
+	useLazyQuery,
 	useMutation,
 	useQuery,
+	DocumentNode,
 } from "@apollo/client"
 import {
 	APP_BY_ID_QUERY,
@@ -23,8 +26,12 @@ import {
 	UPDATE_APP_MUTATIION,
 	UPDATE_SCHEMA_MUTATION,
 	DELETE_SCHEMA_MUTATION,
+	SEARCH_USER_QUERY,
+	SEND_INVITE_MUTATION,
+	GET_MEMBERS_BY_APP,
+	useGetMembersByApp,
 } from "@/src/gql"
-import { IApp } from "@/src/types"
+import { IApp, IMember, IUser } from "@/src/types"
 import auth from "@/src/middlewares/auth"
 import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
 
@@ -37,6 +44,11 @@ import * as Yup from "yup"
 import Swal from "sweetalert2"
 import { ISchema } from "@/src/types"
 import LoadingPage from "@/src/components/Loading/LoadingPage"
+import Image from "next/image"
+import { useSession } from "next-auth/react"
+import Toast from "@/src/components/Toast"
+import useComponentClickOutside from "@/src/hooks/useComponentClickOutside"
+import LoadingSVG from "@/public/loading.svg"
 
 interface Props {
 	query: {
@@ -324,12 +336,12 @@ const Schema: FC = () => {
 			<h3 className="text-xl mb-6">Schema Details</h3>
 
 			<div className="space-y-6">
-				<Input
+				{/* <Input
 					defaultValue="8f1ecb56c1a076125043bb17eb37da2d"
 					label="Access Token"
 					type="password"
 					disabled
-				/>
+				/> */}
 
 				<SidebarSchema.Create
 					label={
@@ -369,7 +381,7 @@ const Schema: FC = () => {
 							onDelete={handleDelete}
 						/>
 
-						<Link href={`/apps/${app!.slug}/data`}>
+						<Link href={`/apps/${app!.slug}/data?model=${schema.model.name}`}>
 							<a className="bg-main-blue text-white text-xs px-3 py-1 rounded-full cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
 								Data
 							</a>
@@ -377,6 +389,160 @@ const Schema: FC = () => {
 					</div>
 				))}
 			</div>
+		</div>
+	)
+}
+
+interface MemberProps {
+	user: Partial<IUser>
+	isMe: boolean
+	member?: Partial<IMember>
+}
+const MemberCard: FC<MemberProps> = (props) => {
+	const { app } = useContext(Context)
+	const [sendInvite] = useMutation(SEND_INVITE_MUTATION)
+	const [isSend, setIsSend] = useState<boolean>(false)
+
+	const handelSendInvite = async () => {
+		setIsSend(true)
+		await sendInvite({
+			variables: {
+				input: {
+					email: props.user.email,
+					appId: app!._id,
+				},
+			},
+		})
+
+		await Toast({
+			type: "SUCCESS",
+			title: "Invited",
+			body: `${props.user.email} has invited`,
+		})
+	}
+
+	return (
+		<div className="flex items-center justify-between hover:bg-gray-100 hover:shadow-md p-2 rounded-sm">
+			<div className="flex items-center gap-3 relative">
+				<Image
+					src={props.user.avatar || ""}
+					width={24}
+					height={24}
+					objectFit="cover"
+					loader={({ src }) => src}
+					unoptimized
+					alt=""
+				/>
+				<div>{props.user.email}</div>
+			</div>
+			{!props.isMe && !props.member && (
+				<button
+					onClick={handelSendInvite}
+					type="button"
+					className="bg-main-blue text-white rounded-md px-2 py-1 text-sm disabled:bg-gray-400"
+					disabled={isSend}
+				>
+					Send invite
+				</button>
+			)}
+		</div>
+	)
+}
+
+const Members: FC = () => {
+	const { app } = useContext(Context)
+	const [searchEmail, setSearchEmail] = useState<string>("")
+	const [fetechSearch, { loading, data }] =
+		useLazyQuery<{ searchUser: IUser[] }>(SEARCH_USER_QUERY)
+	const members = useGetMembersByApp({
+		variables: { input: { appId: app!._id } },
+	})
+
+	const [show, setShow] = useState<boolean>(false)
+
+	const { ref } = useComponentClickOutside(false, () => {
+		setShow(false)
+	})
+
+	const showSearchResult = useMemo(() => {
+		if (!searchEmail) return false
+		setShow(true)
+		fetechSearch({
+			variables: {
+				input: { email: searchEmail },
+			},
+		})
+		return true
+	}, [searchEmail])
+
+	const session = useSession()
+
+	return (
+		<div>
+			<h3 className="text-xl mb-6">Invite your team member</h3>
+			<div className="relative">
+				<Input
+					label="Email"
+					placeholder="Seach by email in tront account"
+					onChangeValue={setSearchEmail}
+				/>
+				<div className="text-sm text-gray-400 mt-1">
+					* Members can create, update, and delete schema in this app
+				</div>
+				{showSearchResult && show && (
+					<div
+						ref={ref}
+						className="absolute top-20 left-0 bg-white z-50 w-full rounded-lg p-2 shadow-lg space-y-2"
+					>
+						{loading && <LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />}
+						{!loading &&
+							data?.searchUser?.map((u) => (
+								<div key={u._id}>
+									<MemberCard
+										user={u}
+										isMe={u._id == session.data?.user._id}
+										member={members.data?.find((m) => m.user._id === u._id)}
+									/>
+								</div>
+							))}
+						{!loading && !data?.searchUser?.length && <>No user found</>}
+					</div>
+				)}
+			</div>
+			{members.loading ? (
+				<LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />
+			) : (
+				<>
+					<div className="mt-6">Members ({members.data?.length})</div>
+					<div className="ml-3 mt-3 space-y-4">
+						{members.data?.map((member) => (
+							<div
+								key={member._id}
+								className={`flex items-center justify-between ${
+									member.status ? "text-black" : "text-gray-400"
+								}`}
+							>
+								<div className="flex items-center gap-3">
+									<Image
+										src={member.user.avatar || ""}
+										width={24}
+										height={24}
+										objectFit="cover"
+										loader={({ src }) => src}
+										unoptimized
+										alt=""
+									/>
+									<div>{member.user.email}</div>
+								</div>
+								<div>
+									{!member.status && <>Invited to </>}
+									<span>{member.role}</span>
+								</div>
+							</div>
+						))}
+					</div>
+				</>
+			)}
 		</div>
 	)
 }
@@ -401,6 +567,7 @@ const Console: NextPage<Props> = (props) => {
 						tabs={[
 							{ title: "App", body: <App /> },
 							{ title: "Schema", body: <Schema /> },
+							{ title: "Members", body: <Members /> },
 						]}
 					/>
 				</div>

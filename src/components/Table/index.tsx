@@ -14,7 +14,7 @@ const Table: FC<Props> = (props) => {
 			<thead className="bg-main-blue text-white ">
 				<tr className="text-left divide-x">
 					{props.keys.map((e, i) => (
-						<th key={i} className="uppercase px-6 py-4">
+						<th key={i} className="px-6 py-4 w-20 last:w-full">
 							{e}
 						</th>
 					))}

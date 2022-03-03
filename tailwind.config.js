@@ -13,7 +13,7 @@ module.exports = {
 					"dark": "#324567",
 					"dark-light": "#5A719D",
 					"red": "#E84444",
-					"green": "#2FCE2C"
+					"green": "#52D78F"
 				}
 			},
 			spacing: {

@@ -6,12 +6,14 @@ declare module "next-auth" {
 	 */
 
 	interface User {
+		_id: string
 		email: string
-		avatar: stromg
+		avatar: string
 	}
 
 	interface Session {
 		user: User
-        trontAccessToken: String
+        trontAccessToken: string
 	}
+	
 }

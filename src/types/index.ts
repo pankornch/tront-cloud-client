@@ -1,12 +1,19 @@
 export interface IApp {
 	_id: string
 	name: string
+	user: IUser
 	description: string
 	slug: string
 	active: boolean
 	apiConfigs: IApiConfigs
 	modelConfigs: IModelConfig
 	createdAt: string | Date
+}
+
+export interface IUser {
+	_id: string
+	email: string
+	avatar: string
 }
 
 export interface IModelConfig {
@@ -60,6 +67,14 @@ export interface ISchema {
 	id?: string
 	model: Partial<IModel>
 	apiSchema?: Partial<IApiSchema>
+}
+
+export interface IMember {
+	_id: string
+	app: Partial<IApp>
+	user: Partial<IUser>
+	status: boolean
+	role: string
 }
 
 export type ModelTypes =

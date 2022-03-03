@@ -1,6 +1,6 @@
 import Input from "@/src/components/Forms/Input"
 import { NextPage } from "next"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import EmailSVG from "@/public/email.svg"
 import PasswordSVG from "@/public/lock.svg"
 import { useFormik } from "formik"
@@ -13,6 +13,7 @@ import * as Yup from "yup"
 import useErrorText from "@/src/utils/errorText"
 import { signIn, useSession } from "next-auth/react"
 import LoadingPage from "@/src/components/Loading/LoadingPage"
+import Toast from "@/src/components/Toast"
 
 interface IForm {
 	email: string
@@ -21,7 +22,10 @@ interface IForm {
 
 const LoginPage: NextPage = () => {
 	const router = useRouter()
-	const {data, status} = useSession()
+	const { data, status } = useSession()
+	const [sendLoading, setSendLoading] = useState({
+		credential: false,
+	})
 
 	const validator = Yup.object().shape({
 		email: Yup.string().email().required(),
@@ -37,13 +41,18 @@ const LoginPage: NextPage = () => {
 			})
 		} catch (error) {
 			console.error(error)
+			Toast({
+				type: "ERROR",
+				title: "Login error",
+				body: "Incorrect email or password!",
+			})
 		}
 	}
 
 	const signInWith = (type: string) => {
 		return () => {
 			signIn(type, {
-				callbackUrl: "/apps"
+				callbackUrl: "/apps",
 			})
 		}
 	}

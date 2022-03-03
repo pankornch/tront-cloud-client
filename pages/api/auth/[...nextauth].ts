@@ -55,6 +55,8 @@ export default NextAuth({
 		async signIn({ user, account }) {
 			if (account.type === "credentials") {
 				account.trontAccessToken = user.token
+				// account.uid = user._id
+				account.user = user
 			} else {
 				const { data, errors } = await client.mutate({
 					mutation: OAUTH_MUTATION,
@@ -63,6 +65,7 @@ export default NextAuth({
 							providerAccountId: account.providerAccountId,
 							type: account.provider.toUpperCase(),
 							email: user.email,
+							avatar: user.avatar || user.image,
 						},
 					},
 				})
@@ -71,6 +74,8 @@ export default NextAuth({
 					return false
 				}
 				account.trontAccessToken = data.oauth.token
+				account.uid = data.oauth.user._id
+				account.avatar = data.oauth.user.avatar
 			}
 			return true
 		},
@@ -78,6 +83,8 @@ export default NextAuth({
 			if (account) {
 				token.accessToken = account.access_token
 				token.trontAccessToken = account.trontAccessToken
+				// token.uid = account.uid
+				token.user = account.user
 			}
 
 			return token
@@ -86,6 +93,9 @@ export default NextAuth({
 			if (token) {
 				session.accessToken = token.accessToken
 				session.trontAccessToken = token.trontAccessToken as string
+				// session.user._id = token.uid as string
+				// @ts-ignore
+				session.user = token.user
 			}
 
 			return session

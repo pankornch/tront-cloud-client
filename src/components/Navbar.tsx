@@ -1,17 +1,19 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useRef, useState } from "react"
 import LogoSVG from "@/public/logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { signOut, useSession } from "next-auth/react"
+import useComponentClickOutside from "../hooks/useComponentClickOutside"
 
 const Navbar: FC = () => {
 	const router = useRouter()
-	const [show, setShow] = useState<boolean>(false)
-	const toggleShow = () => setShow((prev) => !prev)
-	const {data, status} = useSession()
+	const { data } = useSession()
 	const handleSignout = () => {
 		signOut()
 	}
+
+	const { ref, show, toggle } = useComponentClickOutside(false)
+
 
 	return (
 		<nav className="container py-5 shadow-md bg-white fixed top-0 right-0 w-screen flex justify-between items-center z-50">
@@ -20,17 +22,17 @@ const Navbar: FC = () => {
 				onClick={() => router.push("/apps")}
 			>
 				<LogoSVG className="h-10" />
-				<span className="font-bold ml-2 text-xl">Tront</span>
+				<span className="font-semibold ml-2 text-xl">Tront</span>
 			</div>
 
 			<div className="relative">
 				<button
-					onClick={toggleShow}
+					onClick={toggle}
 					type="button"
 					className="flex items-center space-x-3 hover:bg-gray-100 px-4 py-2 rounded-full"
 				>
 					<Image
-						src="https://avatars.dicebear.com/api/identicon/johndoe.svg"
+						src={data?.user.avatar || ""}
 						loader={({ src }) => src}
 						width={24}
 						height={24}
@@ -40,6 +42,7 @@ const Navbar: FC = () => {
 					<span>{data?.user?.email}</span>
 				</button>
 				<div
+					ref={ref}
 					className={`absolute right-0 -bottom-12 bg-white w-48 rounded-md shadow-md border-2 border-gray-200 transition-all duration-100
 					 ${show ? "opacity-100" : "opacity-0"} `}
 				>

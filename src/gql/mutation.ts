@@ -19,6 +19,7 @@ export const SIGN_IN_MUTATION = gql`
 			user {
 				_id
 				email
+				avatar
 			}
 		}
 	}
@@ -31,6 +32,7 @@ export const OAUTH_MUTATION = gql`
 			user {
 				_id
 				email
+				avatar
 			}
 		}
 	}
@@ -82,5 +84,21 @@ export const UPDATE_SCHEMA_MUTATION = gql`
 export const DELETE_SCHEMA_MUTATION = gql`
 	mutation ($input: DeleteSchemaInput!) {
 		deleteSchema(input: $input)
+	}
+`
+
+export const SEND_INVITE_MUTATION = gql`
+	mutation ($input: SendInviteInput!) {
+		sendInvite(input: $input) {
+			_id
+		}
+	}
+`
+
+export const ACTION_INVITE_MUTATION = gql`
+	mutation ($input: ActionInviteInput) {
+		actionInvite(input: $input) {
+			_id
+		}
 	}
 `
