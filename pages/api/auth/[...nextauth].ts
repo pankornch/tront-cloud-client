@@ -55,7 +55,6 @@ export default NextAuth({
 		async signIn({ user, account }) {
 			if (account.type === "credentials") {
 				account.trontAccessToken = user.token
-				// account.uid = user._id
 				account.user = user
 			} else {
 				const { data, errors } = await client.mutate({
@@ -74,8 +73,7 @@ export default NextAuth({
 					return false
 				}
 				account.trontAccessToken = data.oauth.token
-				account.uid = data.oauth.user._id
-				account.avatar = data.oauth.user.avatar
+				account.user = data.oauth.user
 			}
 			return true
 		},
@@ -83,7 +81,6 @@ export default NextAuth({
 			if (account) {
 				token.accessToken = account.access_token
 				token.trontAccessToken = account.trontAccessToken
-				// token.uid = account.uid
 				token.user = account.user
 			}
 

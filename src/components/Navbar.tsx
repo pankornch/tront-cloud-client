@@ -32,7 +32,7 @@ const Navbar: FC = () => {
 					className="flex items-center space-x-3 hover:bg-gray-100 px-4 py-2 rounded-full"
 				>
 					<Image
-						src={data?.user.avatar || ""}
+						src={data?.user?.avatar || "/logo.svg"}
 						loader={({ src }) => src}
 						width={24}
 						height={24}
