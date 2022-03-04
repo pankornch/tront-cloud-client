@@ -1,5 +1,4 @@
 import React, { FC } from "react"
-import LogoSVG from "@/public/logo.svg"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import { signOut, useSession } from "next-auth/react"
@@ -12,17 +11,14 @@ const Navbar: FC = () => {
 		signOut()
 	}
 
-
 	return (
 		<nav className="container py-5 shadow-md bg-white fixed top-0 right-0 w-screen flex justify-between items-center z-50">
 			<div className="cursor-pointer" onClick={() => router.push("/apps")}>
-				<LogoSVG className="h-10" />
+				<Image src="/banner.png" width={89} height={40} alt="tront's banner" />
 			</div>
 
 			<details className="relative group">
-				<summary
-					className="flex cursor-pointer items-center space-x-3 px-4 py-2 rounded-md transition-all before:hidden group-open:before:block before:contents-[' '] before:cursor-default before:h-screen before:w-screen before:fixed before:top-0 before:right-0"
-				>
+				<summary className="flex cursor-pointer items-center space-x-3 px-4 py-2 rounded-md transition-all before:hidden group-open:before:block before:contents-[' '] before:cursor-default before:h-screen before:w-screen before:fixed before:top-0 before:right-0">
 					<Image
 						src={data?.user?.avatar || "/logo.svg"}
 						loader={({ src }) => src}

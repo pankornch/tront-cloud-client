@@ -385,7 +385,7 @@ const Schema: FC = () => {
 						</a>
 						<SidebarSchema.View
 							label={
-								<div className="bg-main-blue text-white text-xs px-3 py-1 rounded-full cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
 									View
 								</div>
 							}
@@ -394,7 +394,7 @@ const Schema: FC = () => {
 
 						<SidebarSchema.Edit
 							label={
-								<div className="bg-main-blue text-white text-xs px-3 py-1 rounded-full cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
 									Edit
 								</div>
 							}
@@ -404,7 +404,7 @@ const Schema: FC = () => {
 						/>
 
 						<Link href={`/apps/${app!.slug}/data?model=${schema.model.name}`}>
-							<a className="bg-main-blue text-white text-xs px-3 py-1 rounded-full cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+							<a className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
 								Data
 							</a>
 						</Link>

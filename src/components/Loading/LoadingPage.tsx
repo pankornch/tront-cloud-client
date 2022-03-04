@@ -1,8 +1,10 @@
 import Lottie from "lottie-react"
-import CloudLoading from "@/public/cloud-lottie-animation.json"
+import Loading from "@/public/loading.json"
 const LoadingPage = () => {
 	return (
-		<Lottie animationData={CloudLoading} className="w-screen h-screen" loop />
+		<div className="h-screen w-screen flex items-center justify-center">
+			<Lottie animationData={Loading} className="w-56 h-56" loop />
+		</div>
 	)
 }
 

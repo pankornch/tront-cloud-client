@@ -1,6 +1,6 @@
 import Input from "@/src/components/Forms/Input"
 import { NextPage } from "next"
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import EmailSVG from "@/public/email.svg"
 import PasswordSVG from "@/public/lock.svg"
 import { useFormik } from "formik"
@@ -14,6 +14,7 @@ import useErrorText from "@/src/utils/errorText"
 import { signIn, useSession } from "next-auth/react"
 import LoadingPage from "@/src/components/Loading/LoadingPage"
 import Toast from "@/src/components/Toast"
+import LoadingOverLay from "@/src/components/Loading/LoadingOverlay"
 
 interface IForm {
 	email: string
@@ -23,22 +24,43 @@ interface IForm {
 const LoginPage: NextPage = () => {
 	const router = useRouter()
 	const { data, status } = useSession()
-	const [sendLoading, setSendLoading] = useState({
-		credential: false,
-	})
-
 	const validator = Yup.object().shape({
 		email: Yup.string().email().required(),
 		password: Yup.string().required(),
 	})
 
 	const handleSubmit = async (values: IForm) => {
+		const stop = LoadingOverLay()
 		try {
 			await signIn("credentials", {
 				email: values.email,
 				password: values.password,
 				callbackUrl: "/apps",
+				redirect: false,
 			})
+				.then((e: any) => {
+					stop()
+					if (e.ok) {
+						Toast({
+							type: "SUCCESS",
+							title: "Sign in completed",
+						})
+					} else {
+						Toast({
+							type: "ERROR",
+							title: "Sign in error",
+							body: "Incorrect email or password",
+						})
+					}
+				})
+				.catch((e) => {
+					Toast({
+						type: "ERROR",
+						title: "Sign in error",
+						body: "Incorrect email or password",
+					})
+					stop()
+				})
 		} catch (error) {
 			console.error(error)
 			Toast({
@@ -76,8 +98,8 @@ const LoginPage: NextPage = () => {
 	}
 
 	return (
-		<div className="bg-main-blue min-h-screen min-w-full flex items-center justify-center p-0 sm:p-12">
-			<div className="bg-white py-12 px-8 sm:p-16 w-screen sm:w-128 rounded-lg shadow-lg h-screen sm:h-auto relative">
+		<div className="bg-main-blue-light min-h-screen min-w-full flex items-center justify-center p-0 sm:p-6">
+			<div className="bg-white py-12 px-8 sm:p-16 w-screen sm:w-128 sm:rounded-lg shadow-lg h-screen sm:h-auto relative">
 				<div
 					onClick={() => router.replace("/")}
 					className="absolute top-12 left-5 sm:top-16 sm:left-14 cursor-pointer hover:bg-gray-100 rounded-full"

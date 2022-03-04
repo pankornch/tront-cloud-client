@@ -59,9 +59,6 @@ const Toast = (props: Props) => {
 		}, props?.duration || 3000)
 	})
 
-	// return () => {
-	// 	remove()
-	// }
 }
 
 export default Toast

@@ -1,8 +1,7 @@
 import type { NextPage } from "next"
-import LogoSVG from "@/public/logo.svg"
 import HambugerSVG from "@/public/hamburger.svg"
 import CloseSVG from "@/public/close.svg"
-import { useState } from "react"
+import { LegacyRef, useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import Input from "@/src/components/Forms/Input"
@@ -12,6 +11,7 @@ import { dataTypes } from "@/src/utils/constants"
 import useApiSchema from "@/src/hooks/useApiSchema"
 import { RefreshIcon } from "@heroicons/react/outline"
 import Table from "@/src/components/Table"
+import Head from "next/head"
 
 const Home: NextPage = () => {
 	const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -20,17 +20,51 @@ const Home: NextPage = () => {
 	})
 
 	const [selectData, setSelectData] = useState<string>("Table")
+
+	const lineRef = useRef<HTMLDivElement | null>(null)
+
+	const handleScrollToBeginLine = useCallback(() => {
+		window.scrollTo({
+			top: lineRef.current?.offsetTop! - 100,
+			behavior: "smooth",
+		})
+	}, [])
+
 	return (
-		<div>
+		<>
+			<Head>
+				<title>Tront: Free restful api</title>
+				<meta
+					name="description"
+					content="Tront easy way to get your own restful api, Tront is website that helps you to get you own RESTful API by simple config"
+				/>
+				<meta
+					name="keywords"
+					content="Tront api, free restful api, easy way to get api, rest api,manage api with team"
+				/>
+				<meta name="robots" content="index, follow" />
+			</Head>
+
 			{/* Navbar */}
 			<nav className="fixed top-0 right-0 w-screen container flex justify-between items-center py-5 shadow-md bg-white z-50">
 				<div className="flex items-center space-x-20">
-					<LogoSVG className="h-10" />
+					<Image
+						src="/banner.png"
+						width={89}
+						height={40}
+						alt="tront's banner"
+					/>
 				</div>
 				<div className="hidden lg:flex space-x-7 items-center text-main-blue ">
-					<div className="hidden lg:block">Features</div>
+					<button
+						type="button"
+						onClick={handleScrollToBeginLine}
+						className="hidden lg:block"
+					>
+						Features
+					</button>
 					<Link href="/login">
-						<a className="text-main-blue px-4 py-2 rounded-md cursor-pointer">
+						<a className="text-main-blue px-4 py-2 rounded-md cursor-pointer hover:ring-1 ring-main-blue">
 							Log in
 						</a>
 					</Link>
@@ -52,12 +86,12 @@ const Home: NextPage = () => {
 				{isOpen && (
 					<div className="container flex flex-col space-y-6 fixed top-0 right-0 w-screen pt-28 pb-5 h-screen bg-white z-40">
 						<Link href="/login">
-							<a className="text-main-blue px-4 py-2 rounded-md cursor-pointer">
+							<a className="text-main-blue px-4 py-2 rounded-md cursor-pointer text-center ring-1 ring-main-blue">
 								Log in
 							</a>
 						</Link>
 						<Link href="/signup">
-							<a className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer">
+							<a className="bg-main-blue text-white px-4 py-2 rounded-md cursor-pointer text-center">
 								Sign up
 							</a>
 						</Link>
@@ -65,7 +99,7 @@ const Home: NextPage = () => {
 				)}
 			</div>
 			{/* Content */}
-			<div className="container pt-20 bg-gradient-to-b from-main-blue-light/50 min-h-screen flex flex-col items-center gap-y-12">
+			<div className="container pt-20 bg-gradient-to-b from-main-blue-light/50 min-h-screen flex flex-col items-center gap-y-4 md:gap-y-12">
 				<div className="flex flex-col items-center text-main-blue gap-y-3 pt-12 text-center">
 					<h1 className="text-4xl md:text-6xl">The easy way to get your own</h1>
 					<h1 className="text-4xl md:text-6xl underline decoration-main-green underline-offset-8">
@@ -78,35 +112,36 @@ const Home: NextPage = () => {
 					config.
 				</h6>
 
-				<div className="relative w-4/5 h-52">
-					<Image
-						src="/img-content.png"
-						layout="fill"
-						alt=""
-						objectFit="cover"
-						unoptimized
-					/>
+
+					<div className="relative w-4/5 h-20 lg:h-80">
+						<Image
+							src="/img-content.png"
+							layout="fill"
+							alt=""
+							objectFit="contain"
+							unoptimized
+						/>
 				</div>
 
 				<Link href="/signup">
-					<a className="bg-main-blue text-white px-5 py-2 rounded-md text-lg">
+					<a className="bg-main-blue text-white px-5 py-2 rounded-md text-md sm:text-lg my-8 md:my-0">
 						Get Started
 					</a>
 				</Link>
 
-				<div className="flex flex-col w-full">
+				<div className="flex flex-col w-full" ref={lineRef}>
 					{/* begin */}
 
 					<div className="w-full grid grid-cols-2 h-12 relative">
-						<div className="absolute -top-1 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
+						<div className="absolute -top-1 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
 					</div>
 
 					{/* App */}
-					<div className="w-full grid grid-cols-1 sm:grid-cols-2 relative gap-y-12 sm:gap-0 py-6 sm:py-12">
-						<div className="absolute top-20 sm:top-1/2 -translate-y-1/2 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
-						<div className="h-32 w-11/12 sm:w-96 justify-self-end sm:mr-12">
+					<div className="w-full grid grid-cols-1 lg:grid-cols-2 relative gap-y-12 lg:gap-0 py-6 lg:py-12">
+						<div className="absolute top-20 lg:top-1/2 -translate-y-1/2 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
+						<div className="h-32 w-11/12 lg:w-96 justify-self-end lg:mr-12">
 							<div className="bg-white border shadow-md rounded-lg select-none p-4 flex flex-col gap-y-3 hover:shadow-lg">
 								<div className="flex justify-between">
 									<div className="text-lg font-medium truncate">
@@ -138,7 +173,7 @@ const Home: NextPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="min-h-[8rem] w-11/12 sm:w-96 bg-white shadow-md justify-self-end sm:justify-self-start sm:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
+						<div className="min-h-[8rem] w-11/12 lg:w-96 bg-white shadow-md justify-self-end lg:justify-self-start lg:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
 							enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -147,10 +182,10 @@ const Home: NextPage = () => {
 					</div>
 
 					{/* Create App */}
-					<div className="w-full grid grid-cols-1 sm:grid-cols-2 relative gap-y-12 sm:gap-0 py-6 sm:py-12">
-						<div className="absolute top-20 sm:top-1/2 -translate-y-1/2 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
-						<div className="w-11/12 sm:w-96 justify-self-end sm:mr-12">
+					<div className="w-full grid grid-cols-1 lg:grid-cols-2 relative gap-y-12 lg:gap-0 py-6 lg:py-12">
+						<div className="absolute top-20 lg:top-1/2 -translate-y-1/2 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
+						<div className="w-11/12 lg:w-96 justify-self-end lg:mr-12">
 							<div className="bg-white border shadow-md rounded-lg select-none p-4 flex flex-col gap-y-3 hover:shadow-lg">
 								<div className="text-center font-semibold text-lg">
 									Create App
@@ -182,7 +217,7 @@ const Home: NextPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="min-h-[8rem] h-fit w-11/12 sm:w-96 bg-white shadow-md justify-self-end sm:justify-self-start sm:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
+						<div className="min-h-[8rem] h-fit w-11/12 lg:w-96 bg-white shadow-md justify-self-end lg:justify-self-start lg:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
 							enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -191,10 +226,10 @@ const Home: NextPage = () => {
 					</div>
 
 					{/* Create Schema */}
-					<div className="w-full grid grid-cols-1 sm:grid-cols-2 relative gap-y-12 sm:gap-0 py-6 sm:py-12">
-						<div className="absolute top-20 sm:top-1/2 -translate-y-1/2 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
-						<div className="w-11/12 sm:w-96 justify-self-end sm:mr-12">
+					<div className="w-full grid grid-cols-1 lg:grid-cols-2 relative gap-y-12 lg:gap-0 py-6 lg:py-12">
+						<div className="absolute top-20 lg:top-1/2 -translate-y-1/2 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
+						<div className="w-11/12 lg:w-96 justify-self-end lg:mr-12">
 							<div className="bg-white border shadow-md rounded-lg select-none p-4 flex flex-col gap-y-3 hover:shadow-lg">
 								<div className="text-center font-semibold text-lg">
 									Create Schema
@@ -217,7 +252,11 @@ const Home: NextPage = () => {
 										readOnly
 										className="col-span-3 text-sm"
 									/>
-									<Select options={dataTypes} className="col-span-3 text-sm" />
+									<Select
+										options={dataTypes}
+										className="col-span-3 text-sm"
+										disabled
+									/>
 									<Input
 										defaultValue=""
 										readOnly
@@ -292,7 +331,7 @@ const Home: NextPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="min-h-[8rem] h-fit w-11/12 sm:w-96 bg-white shadow-md justify-self-end sm:justify-self-start sm:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
+						<div className="min-h-[8rem] h-fit w-11/12 lg:w-96 bg-white shadow-md justify-self-end lg:justify-self-start lg:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
 							enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -301,10 +340,10 @@ const Home: NextPage = () => {
 					</div>
 
 					{/* Member */}
-					<div className="w-full grid grid-cols-1 sm:grid-cols-2 relative gap-y-12 sm:gap-0 py-6 sm:py-12">
-						<div className="absolute top-20 sm:top-1/2 -translate-y-1/2 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
-						<div className="w-11/12 sm:w-96 justify-self-end sm:mr-12">
+					<div className="w-full grid grid-cols-1 lg:grid-cols-2 relative gap-y-12 lg:gap-0 py-6 lg:py-12">
+						<div className="absolute top-20 lg:top-1/2 -translate-y-1/2 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
+						<div className="w-11/12 lg:w-96 justify-self-end lg:mr-12">
 							<div className="bg-white border shadow-md rounded-lg select-none p-4 flex flex-col gap-y-3 hover:shadow-lg">
 								<div className="text-lg font-semibold text-center">
 									Invite your team
@@ -351,7 +390,7 @@ const Home: NextPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="min-h-[8rem] h-fit w-11/12 sm:w-96 bg-white shadow-md justify-self-end sm:justify-self-start sm:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
+						<div className="min-h-[8rem] h-fit w-11/12 lg:w-96 bg-white shadow-md justify-self-end lg:justify-self-start lg:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
 							enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -360,24 +399,27 @@ const Home: NextPage = () => {
 					</div>
 
 					{/* Data Playground */}
-					<div className="w-full grid grid-cols-1 sm:grid-cols-2 relative gap-y-12 sm:gap-0 py-6 sm:py-12">
-						<div className="absolute top-20 sm:top-1/2 -translate-y-1/2 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
-						<div className="w-11/12 sm:w-96 justify-self-end sm:mr-12">
+					<div className="w-full grid grid-cols-1 lg:grid-cols-2 relative gap-y-12 lg:gap-0 py-6 lg:py-12">
+						<div className="absolute top-20 lg:top-1/2 -translate-y-1/2 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
+						<div className="w-11/12 lg:w-96 justify-self-end lg:mr-12">
 							<div className="bg-white border shadow-md rounded-lg select-none p-4 flex flex-col gap-y-4 hover:shadow-lg">
 								<div className="text-lg font-semibold text-center">Data</div>
 								<div className="flex items-center gap-x-3">
 									<div className="font-medium">API</div>
 									<Select options={["Books"]} />
-									<div className="text-xs bg-main-blue text-white rounded-full px-2 py-1">
+									<div className="text-xs bg-main-blue text-white rounded-lg px-2 py-1">
 										View
 									</div>
-									<div className="text-xs bg-main-blue text-white rounded-full px-2 py-1">
+									<div className="text-xs bg-main-blue text-white rounded-lg px-2 py-1">
 										Console
 									</div>
 								</div>
 
-								<Input defaultValue="https://tront.netlify.com/api/rest/lorem-ipsum-dolor/Books" readOnly />
+								<Input
+									defaultValue="https://tront.netlify.com/api/rest/lorem-ipsum-dolor/Books"
+									readOnly
+								/>
 								<div className="flex items-end justify-between">
 									<div className="flex gap-3">
 										<Select
@@ -389,7 +431,7 @@ const Home: NextPage = () => {
 										/>
 										<Select
 											options={[10, 50, 100]}
-											className="w-16 sm:w-20"
+											className="w-16 lg:w-20"
 											label="Limit"
 										/>
 									</div>
@@ -442,7 +484,7 @@ const Home: NextPage = () => {
 								</div>
 							</div>
 						</div>
-						<div className="min-h-[8rem] h-fit w-11/12 sm:w-96 bg-white shadow-md justify-self-end sm:justify-self-start sm:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
+						<div className="min-h-[8rem] h-fit w-11/12 lg:w-96 bg-white shadow-md justify-self-end lg:justify-self-start lg:ml-12 px-4 py-2 rounded-lg hover:shadow-lg">
 							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 							eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
 							enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -453,8 +495,8 @@ const Home: NextPage = () => {
 					{/* tail */}
 
 					<div className="w-full grid grid-cols-2 h-12 relative">
-						<div className="absolute -bottom-1 left-px sm:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
-						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 sm:left-1/2 sm:-translate-x-1/2"></div>
+						<div className="absolute -bottom-1 left-px lg:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-main-blue"></div>
+						<div className="h-full w-1 bg-main-blue absolute top-0 left-0 lg:left-1/2 lg:-translate-x-1/2"></div>
 					</div>
 				</div>
 
@@ -468,11 +510,16 @@ const Home: NextPage = () => {
 
 				{/* Footer */}
 				<footer className="py-12 flex flex-col sm:flex-row gap-y-3 justify-between items-center w-full">
-					<LogoSVG className="h-10" />
+					<Image
+						src="/banner.png"
+						width={89}
+						height={40}
+						alt="tront's banner"
+					/>
 					<div>&#169; 2021 - 2022 Tront. All rights reserved</div>
 				</footer>
 			</div>
-		</div>
+		</>
 	)
 }
 

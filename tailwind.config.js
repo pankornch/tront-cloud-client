@@ -20,7 +20,16 @@ module.exports = {
 			},
 			spacing: {
 				"128": "32rem",
-			}
+			},
+			animation: {
+				"bounce-slow": "bounce-low 1.4s infinite"
+			},
+			keyframes: {
+				"bounce-low": {
+				  '0%, 100%': { transform: 'translateY(-5%)' },
+				  '50%': { transform: 'none' },
+				}
+			  }
 		},
 	},
 	plugins: [],

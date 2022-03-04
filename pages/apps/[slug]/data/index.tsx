@@ -130,14 +130,13 @@ const Index: NextPage<Props> = (props) => {
 
 			if (!data || !currentModel) return
 			setApiLoading(true)
-			const slug = data!.app.slug
-			const modelName = currentModel!.name
+			
 			const skip = ((props?.page || currentPage) - 1) * selectPageSize
-			const res = await axios.get(
-				`/api/rest/${slug}/${modelName}?skip=${skip}&limit=${
-					props?.limit || selectPageSize
-				}`
-			)
+			const limit = props?.limit || selectPageSize
+
+			const url = `${apiUrl}?skip=${skip}&limit=${limit}`
+			const res = await axios.get(url)
+			
 			setApiData(res.data)
 			setApiLoading(false)
 		},
@@ -225,150 +224,159 @@ const Index: NextPage<Props> = (props) => {
 				}
 			>
 				<>
-					<div className="container mt-20 py-12 space-y-12">
-						<div className="flex justify-center items-center space-x-3">
-							<h1 className="text-2xl font-bold">API:</h1>
+					<div className="container mt-20 py-12">
+						<div className="xl:w-1/2 w-full space-y-12 m-auto">
+							<div className="flex justify-center items-center space-x-3">
+								<h1 className="text-2xl font-bold">API:</h1>
 
-							<Select
-								options={models.map((e) => ({
-									label: e.name!,
-									value: e._id!,
-								}))}
-								value={selectedModel}
-								className="w-40"
-								onChangeValue={(e) => setSelectedModel(e)}
-							/>
-
-							{schema && (
-								<>
-									<SidebarSchema.View schema={schema} />
-									<Link href={`/apps/${props.query.slug}/console`}>
-										<a className="text-xs bg-main-blue px-3 py-1 rounded-full text-white">
-											console
-										</a>
-									</Link>
-								</>
-							)}
-						</div>
-
-						<div className="flex gap-x-3 text-lg">
-							{/* <Input value={apiUrl} readOnly /> */}
-							<div className="text-semibold">API endpoint:</div>
-							<Link href={apiUrl}>
-								<a className="text-main-blue underline underline-offset-4">{apiUrl}</a>
-							</Link>
-						</div>
-
-						<div className="flex flex-col sm:flex-row justify-end sm:justify-between items-start sm:items-end gap-y-6 sm:gap-0">
-							<div className="flex space-x-3 items-end">
 								<Select
-									options={["Table", "JSON"]}
-									label="Data"
-									value={selectData}
-									onChangeValue={setSelectData}
+									options={models.map((e) => ({
+										label: e.name!,
+										value: e._id!,
+									}))}
+									value={selectedModel}
 									className="w-40"
+									onChangeValue={(e) => setSelectedModel(e)}
 								/>
-								<Select
-									label="Limit"
-									options={[10, 50, 100]}
-									value={selectPageSize}
-									onChangeValue={(val) => {
-										setSelectPageSize(~~val)
-										fetchApi({ limit: val })
-									}}
-									className="w-20"
-								/>
-							</div>
-							<div className="flex gap-x-3">
-								<button
-									onClick={() => fetchApi()}
-									type="button"
-									className="bg-main-blue px-3 py-1 rounded-md text-white"
-								>
-									<RefreshIcon className="w-4" />
-								</button>
-								<Sidebar.Button
-									label={
-										<div className="bg-main-blue px-3 py-1 rounded-md text-white">
-											Insert
-										</div>
-									}
-									handleClose={(close) => (handleCloseInsertSidebar = close)}
-								>
-									<div className="flex flex-col gap-y-6">
-										<h4>Insert data</h4>
-										<Input
-											disabled
-											defaultValue={currentModel?.name}
-											label="Model name"
+
+								{schema && (
+									<>
+										<SidebarSchema.View
+											schema={schema}
+											label={
+												<div className="bg-main-blue px-3 py-1 rounded-lg text-white">
+													View
+												</div>
+											}
 										/>
-
-										<div>
-											<div className="flex space-x-3 mb-3">
-												<div className="w-40">Field name</div>
-												<div className="w-40">Type</div>
-												<div className="grown">Value</div>
-											</div>
-
-											<div className="flex flex-col gap-y-3">
-												{currentModel?.fields?.map((field, index) => (
-													<div
-														key={index}
-														className="flex space-x-3 group items-center"
-													>
-														<Input
-															className="w-40"
-															value={field.name}
-															readOnly
-															required
-															disabled
-														/>
-														<Select
-															className="w-40"
-															options={dataTypes}
-															value={field.type}
-															disabled
-														/>
-														<Input
-															className="grown"
-															disabled={field.name === "_id"}
-															value={insertForm[field.name] || ""}
-															onChangeValue={(val) =>
-																setInsertForm((prev) => ({
-																	...prev,
-																	[field.name]: val,
-																}))
-															}
-														/>
-													</div>
-												))}
-											</div>
-										</div>
-
-										<button
-											className="bg-main-blue text-white rounded-lg py-2 text-center cursor-pointer w-full mt-12"
-											type="button"
-											onClick={handleInsertData}
-										>
-											Add
-										</button>
-									</div>
-								</Sidebar.Button>
+										<Link href={`/apps/${props.query.slug}/console`}>
+											<a className="bg-main-blue px-3 py-1 rounded-lg text-white">
+												console
+											</a>
+										</Link>
+									</>
+								)}
 							</div>
-						</div>
 
-						{renderDataComponent()}
+							<div className="flex items-center gap-x-3 text-lg">
+								<div className="text-semibold">Endpoint:</div>
+								<Input className="grow" value={apiUrl} readOnly />
+								{/* <Link href={apiUrl}>
+								<a className="text-main-blue underline underline-offset-4">{apiUrl}</a>
+							</Link> */}
+							</div>
 
-						<div className="flex justify-end">
-							<Pagination
-								currentPage={currentPage}
-								pageSize={selectPageSize}
-								totalCount={apiData?.totalCounts || 0}
-								onPageChange={(p) => {
-									setCurrentPage(p)
-									fetchApi({ page: p })
-								}}
-							/>
+							<div className="flex flex-col sm:flex-row justify-end sm:justify-between items-start sm:items-end gap-y-6 sm:gap-0">
+								<div className="flex space-x-3 items-end">
+									<Select
+										options={["Table", "JSON"]}
+										label="Data"
+										value={selectData}
+										onChangeValue={setSelectData}
+										className="w-40"
+									/>
+									<Select
+										label="Limit"
+										options={[10, 50, 100]}
+										value={selectPageSize}
+										onChangeValue={(val) => {
+											setSelectPageSize(~~val)
+											fetchApi({ limit: val })
+										}}
+										className="w-20"
+									/>
+								</div>
+								<div className="flex gap-x-3">
+									<button
+										onClick={() => fetchApi()}
+										type="button"
+										className="bg-main-blue px-3 py-1 rounded-md text-white"
+									>
+										<RefreshIcon className="w-4" />
+									</button>
+									<Sidebar.Button
+										label={
+											<div className="bg-main-blue px-3 py-1 rounded-md text-white">
+												Insert
+											</div>
+										}
+										handleClose={(close) => (handleCloseInsertSidebar = close)}
+									>
+										<div className="flex flex-col gap-y-6">
+											<h4>Insert data</h4>
+											<Input
+												disabled
+												defaultValue={currentModel?.name}
+												label="Model name"
+											/>
+
+											<div>
+												<div className="flex space-x-3 mb-3">
+													<div className="w-40">Field name</div>
+													<div className="w-40">Type</div>
+													<div className="grown">Value</div>
+												</div>
+
+												<div className="flex flex-col gap-y-3">
+													{currentModel?.fields?.map((field, index) => (
+														<div
+															key={index}
+															className="flex space-x-3 group items-center"
+														>
+															<Input
+																className="w-40"
+																value={field.name}
+																readOnly
+																required
+																disabled
+															/>
+															<Select
+																className="w-40"
+																options={dataTypes}
+																value={field.type}
+																disabled
+															/>
+															<Input
+																className="grown"
+																disabled={field.name === "_id"}
+																value={insertForm[field.name] || ""}
+																onChangeValue={(val) =>
+																	setInsertForm((prev) => ({
+																		...prev,
+																		[field.name]: val,
+																	}))
+																}
+															/>
+														</div>
+													))}
+												</div>
+											</div>
+
+											<button
+												className="bg-main-blue text-white rounded-lg py-2 text-center cursor-pointer w-full mt-12"
+												type="button"
+												onClick={handleInsertData}
+											>
+												Add
+											</button>
+										</div>
+									</Sidebar.Button>
+								</div>
+							</div>
+
+							{renderDataComponent()}
+
+							<div className="flex justify-end">
+								<Pagination
+									currentPage={currentPage}
+									pageSize={selectPageSize}
+									totalCount={apiData?.totalCounts || 0}
+									onPageChange={(p) => {
+										setCurrentPage(p)
+										fetchApi({ page: p })
+									}}
+								/>
+							</div>
 						</div>
 					</div>
 				</>

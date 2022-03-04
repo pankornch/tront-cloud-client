@@ -15,6 +15,8 @@ import { useMutation } from "@apollo/client"
 import { SIGN_UP_MUTATION } from "@/src/gql"
 import { signIn, useSession } from "next-auth/react"
 import LoadingPage from "@/src/components/Loading/LoadingPage"
+import Toast from "@/src/components/Toast"
+import LoadingOverLay from "@/src/components/Loading/LoadingOverlay"
 
 interface IForm {
 	email: string
@@ -38,6 +40,7 @@ const SignUpPage: NextPage = () => {
 	})
 
 	const handleSubmit = async (values: IForm) => {
+		const stop = LoadingOverLay()
 		try {
 			const { errors } = await signUp({
 				variables: {
@@ -48,6 +51,8 @@ const SignUpPage: NextPage = () => {
 					},
 				},
 			})
+
+			stop()
 
 			if (errors) {
 				console.error(errors)
@@ -61,7 +66,13 @@ const SignUpPage: NextPage = () => {
 			})
 
 			router.replace("/apps")
-		} catch (error) {
+		} catch (error:any) {
+			stop()
+			Toast({
+				type: "ERROR",
+				title: "Sign up error",
+				body: error.message,
+			})
 			console.error(error)
 		}
 	}
@@ -93,8 +104,8 @@ const SignUpPage: NextPage = () => {
 	}
 
 	return (
-		<div className="bg-main-blue min-h-screen min-w-full flex items-center justify-center p-0 sm:p-12">
-			<div className="bg-white py-12 px-8 sm:p-16 w-screen sm:w-128 rounded-lg shadow-lg h-screen sm:h-auto relative">
+		<div className="bg-main-blue-light min-h-screen min-w-full flex items-center justify-center p-0 sm:p-6">
+			<div className="bg-white py-12 px-8 sm:p-16 w-screen sm:w-128 sm:rounded-lg shadow-lg h-screen sm:h-auto relative">
 				<div
 					onClick={() => router.replace("/")}
 					className="absolute top-12 left-5 sm:top-16 sm:left-14 cursor-pointer hover:bg-gray-100 rounded-full"

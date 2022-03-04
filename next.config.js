@@ -13,7 +13,7 @@ module.exports = {
     return [
       {
         source: '/api/rest/:path*',
-        destination: `${process.env.NEXT_PUBLIC_BASE_URL_API}/api/rest/:path*` // Proxy to Backend
+        destination: `${process.env.NEXT_PUBLIC_BASE_URL_API}/rest/:path*` // Proxy to Backend
       }
     ]
   }

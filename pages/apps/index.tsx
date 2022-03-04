@@ -15,7 +15,7 @@ import {
 	ChevronDownIcon,
 } from "@heroicons/react/solid"
 import Toast from "@/src/components/Toast"
-import LoadingOverLay from "@/src/components/LoadingOverlay"
+import LoadingOverLay from "@/src/components/Loading/LoadingOverlay"
 import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
 
 const Index: NextPage = () => {
@@ -71,7 +71,6 @@ const Index: NextPage = () => {
 		close()
 	}
 
-	// if (loading) return <LoadingPage />
 
 	return (
 		<div>
