@@ -21,6 +21,30 @@ const isPrimaryKey = (field: IField | string) => {
 	return false
 }
 
+const handleValidateUniqueFieldName = (fields: IField[]) => {
+	const map: Record<string, string> = {}
+	const duplicateNames: Record<string, string> = {}
+
+	for (const field of fields) {
+		if (map[field.name]) {
+			duplicateNames[field.name] = field.name
+		} else {
+			map[field.name] = field.name
+		}
+	}
+
+	if (Object.keys(duplicateNames).length) {
+		return {
+			isDuplicated: true,
+			duplicateName: Object.keys(duplicateNames),
+		}
+	} else {
+		return {
+			isDuplicated: false,
+		}
+	}
+}
+
 const useModel = (modelProps?: IModel) => {
 	const [model, setModel] = useState<Partial<IModel>>(defaultValue(modelProps))
 	const cloneRef = useRef<IModel>()
@@ -100,6 +124,7 @@ const useModel = (modelProps?: IModel) => {
 			handleValidateModel,
 			isPrimaryKey,
 			handleResetModel,
+			validateUniqueFieldName: handleValidateUniqueFieldName(model.fields || [])
 		}
 	}, [model, modelProps])
 }

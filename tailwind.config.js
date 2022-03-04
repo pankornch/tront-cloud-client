@@ -13,7 +13,9 @@ module.exports = {
 					"dark": "#324567",
 					"dark-light": "#5A719D",
 					"red": "#E84444",
-					"green": "#52D78F"
+					"green": "#52D78F",
+					"yellow": "#eab308",
+					"orange": "#f97316"
 				}
 			},
 			spacing: {

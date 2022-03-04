@@ -56,11 +56,11 @@ const getApiMethodColor = (name: string) => {
 		case "POST":
 			return "text-main-blue"
 		case "PATCH":
-			return "text-yellow-500"
+			return "text-main-yellow"
 		case "PUT":
-			return "text-orange-500"
+			return "text-main-orange"
 		case "DELETE":
-			return "text-red-500"
+			return "text-main-red"
 		default:
 			return "text-main-green"
 	}

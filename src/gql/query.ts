@@ -28,6 +28,9 @@ export const APP_BY_ID_QUERY = gql`
 			description
 			slug
 			active
+			user {
+				_id
+			}
 			modelConfigs {
 				models {
 					_id
@@ -56,6 +59,16 @@ export const APP_BY_ID_QUERY = gql`
 						active
 						public
 					}
+				}
+			}
+			members {
+				_id
+				role
+				status
+				user {
+					_id
+					email
+					avatar
 				}
 			}
 		}

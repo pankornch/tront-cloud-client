@@ -1,5 +1,5 @@
 import { ISchema } from "@/src/types"
-import React, { FC, useEffect, useMemo, useState } from "react"
+import React, { FC } from "react"
 import Sidebar from "../Sidebar"
 import useApiSchema from "@/src/hooks/useApiSchema"
 import useModel from "@/src/hooks/useModel"
@@ -13,6 +13,8 @@ import Select from "../../Forms/Select"
 import CloseSVG from "@/public/close.svg"
 import cloneObj from "@/src/utils/cloneObj"
 import Swal from "sweetalert2"
+import * as yup from "yup"
+import Toast from "../../Toast"
 
 type OnSubmitHandler = (data: ISchema) => void
 type OnDeleteHandler = (id: string) => void
@@ -22,6 +24,7 @@ export interface EditProps {
 	schema: ISchema
 	onSubmit?: OnSubmitHandler
 	onDelete?: OnDeleteHandler
+	modelNames?: string[]
 }
 
 export const Edit: FC<EditProps> = (props) => {
@@ -33,11 +36,12 @@ export const Edit: FC<EditProps> = (props) => {
 		handleRemoveField,
 		isPrimaryKey,
 		handleResetModel,
+		validateUniqueFieldName,
 	} = useModel(cloneObj(props.schema.model))
 
 	const {
 		apiSchema,
-		getApiMethodColor,
+		// getApiMethodColor,
 		handleChangeMethodApi,
 		handleResetApiSchema,
 	} = useApiSchema({
@@ -46,6 +50,21 @@ export const Edit: FC<EditProps> = (props) => {
 			? cloneObj(props.schema.apiSchema)
 			: undefined,
 	})
+
+	const getApiMethodColor = (name: string) => {
+		switch (name) {
+			case "POST":
+				return "text-main-blue"
+			case "PATCH":
+				return "text-main-yellow"
+			case "PUT":
+				return "text-main-orange"
+			case "DELETE":
+				return "text-main-red"
+			default:
+				return "text-main-green"
+		}
+	}
 
 	let handleClose: any
 
@@ -70,19 +89,49 @@ export const Edit: FC<EditProps> = (props) => {
 	}
 
 	const handleSubmit = async () => {
-		const result = await Swal.fire({
-			title: "Are you sure?",
-			text: "You won't be able to revert this!",
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#2680fe",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "Yes, update it!",
+		const validator = yup.object({
+			model: yup.object({
+				name: yup.string().required(),
+			}),
 		})
 
-		if (!result.isConfirmed) return
-		props.onSubmit?.call(this, { apiSchema, model, id: props.schema.id })
-		handleClose()
+		if (validateUniqueFieldName.isDuplicated) {
+			Toast({
+				type: "ERROR",
+				title: "Validation error",
+				body: `Duplicate field name at ${validateUniqueFieldName.duplicateName}`,
+			})
+			return
+		}
+
+		validator
+			.validate({ model })
+			.then(async () => {
+				if (props.modelNames?.includes(model.name!)) {
+					Toast({
+						type: "ERROR",
+						title: "Validation error",
+						body: "Model name must be unique",
+					})
+				} else {
+					const result = await Swal.fire({
+						title: "Are you sure?",
+						text: "You won't be able to revert this!",
+						icon: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#2680fe",
+						cancelButtonColor: "#d33",
+						confirmButtonText: "Yes, update it!",
+					})
+
+					if (!result.isConfirmed) return
+					props.onSubmit?.call(this, { apiSchema, model, id: props.schema.id })
+					handleClose()
+				}
+			})
+			.catch((e) => {
+				Toast({ type: "ERROR", title: "Validation error", body: e.message })
+			})
 	}
 
 	const handleReset = () => {
@@ -113,9 +162,9 @@ export const Edit: FC<EditProps> = (props) => {
 			handleClose={(close) => (handleClose = close)}
 		>
 			<div>
-				<div className="text-xl font-bold">Edit Schema</div>
+				<div className="text-xl font-medium">Edit Schema</div>
 
-				<div className="mt-12">
+				<div className="mt-6">
 					<div className="mb-3">Model</div>
 					<Input
 						label="Model name"
@@ -168,12 +217,14 @@ export const Edit: FC<EditProps> = (props) => {
 									disabled={isPrimaryKey(field)}
 								/>
 								<div className="w-12">
-									<div
-										onClick={() => handleRemoveField(index)}
-										className="hidden group-hover:block bg-main-red text-white p-2 w-fit rounded-full cursor-pointer"
-									>
-										<CloseSVG className="w-3" />
-									</div>
+									{!isPrimaryKey(field.name) && model.fields!.length > 2 && (
+										<div
+											onClick={() => handleRemoveField(index)}
+											className="hidden group-hover:block bg-main-red text-white p-2 w-fit rounded-full cursor-pointer"
+										>
+											<CloseSVG className="w-3" />
+										</div>
+									)}
 								</div>
 							</div>
 						))}
@@ -231,6 +282,14 @@ export const Edit: FC<EditProps> = (props) => {
 				<div className="mt-12 space-y-3">
 					<button
 						type="button"
+						className="bg-main-blue text-white rounded-lg py-2 text-center cursor-pointer w-full"
+						onClick={handleSubmit}
+					>
+						Submit
+					</button>
+
+					<button
+						type="button"
 						className="bg-gray-400 text-white rounded-lg py-2 text-center cursor-pointer w-full"
 						onClick={handleReset}
 					>
@@ -243,14 +302,6 @@ export const Edit: FC<EditProps> = (props) => {
 						onClick={handleCancel}
 					>
 						Cancel
-					</button>
-
-					<button
-						type="button"
-						className="bg-main-blue text-white rounded-lg py-2 text-center cursor-pointer w-full"
-						onClick={handleSubmit}
-					>
-						Submit
 					</button>
 
 					<button

@@ -20,12 +20,12 @@ const Toast = (props: Props) => {
 
 	switch (props.type) {
 		case "SUCCESS":
-			toast.className = "border-l-4 border-green-500 w-full px-4 py-2 bg-white shadow-md rounded-md"
-			toastTitle.className = "text-lg text-green-500"
+			toast.className = "border-l-4 border-main-green w-full px-4 py-2 bg-white shadow-md rounded-md"
+			toastTitle.className = "text-lg text-main-green"
 			break
 		case "ERROR":
-			toast.className = "border-l-4 border-red-500 w-full px-4 py-2 bg-white shadow-md rounded-md"
-			toastTitle.className = "text-lg text-red-500"
+			toast.className = "border-l-4 border-main-red w-full px-4 py-2 bg-white shadow-md rounded-md"
+			toastTitle.className = "text-lg text-main-red"
 			break
 		default:
 			toast.className = "border-l-4 border-gray-500 w-full px-4 py-2 bg-white shadow-md rounded-md"

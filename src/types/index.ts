@@ -7,6 +7,7 @@ export interface IApp {
 	active: boolean
 	apiConfigs: IApiConfigs
 	modelConfigs: IModelConfig
+	members: IMember[]
 	createdAt: string | Date
 }
 

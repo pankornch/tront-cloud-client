@@ -1,5 +1,5 @@
 import { dataTypes } from "@/src/utils/constants"
-import React, { FC, useEffect, useMemo, useState } from "react"
+import React, { FC } from "react"
 import Checkbox from "../../Forms/Checkbox"
 import Input from "../../Forms/Input"
 import Select from "../../Forms/Select"
@@ -11,12 +11,15 @@ import PublicSVG from "@/public/public.svg"
 import PrivateSVG from "@/public/lock.svg"
 import { ISchema } from "@/src/types"
 import shortId from "shortid"
+import * as yup from "yup"
+import Toast from "../../Toast"
 
 type OnSubmitHandler = (data: ISchema) => void
 
 export interface CreateProps {
 	label?: JSX.Element | string
 	onSubmit?: OnSubmitHandler
+	modelNames?: string[]
 }
 
 const Create: FC<CreateProps> = (props) => {
@@ -28,16 +31,28 @@ const Create: FC<CreateProps> = (props) => {
 		handleRemoveField,
 		isPrimaryKey,
 		handleClearModel,
+		validateUniqueFieldName,
 	} = useModel()
 
-	const {
-		apiSchema,
-		getApiMethodColor,
-		handleChangeMethodApi,
-		handleClearApiSchema,
-	} = useApiSchema({
-		model,
-	})
+	const { apiSchema, handleChangeMethodApi, handleClearApiSchema } =
+		useApiSchema({
+			model,
+		})
+
+	const getApiMethodColor = (name: string) => {
+		switch (name) {
+			case "POST":
+				return "text-main-blue"
+			case "PATCH":
+				return "text-main-yellow"
+			case "PUT":
+				return "text-main-orange"
+			case "DELETE":
+				return "text-main-red"
+			default:
+				return "text-main-green"
+		}
+	}
 
 	let handleClose: any
 
@@ -62,8 +77,42 @@ const Create: FC<CreateProps> = (props) => {
 	}
 
 	const handleSubmit = () => {
-		props.onSubmit?.call(this, { model, apiSchema, id: shortId.generate() })
-		handleClose()
+		const validator = yup.object({
+			model: yup.object({
+				name: yup.string().required(),
+			}),
+		})
+
+		if (validateUniqueFieldName.isDuplicated) {
+			Toast({
+				type: "ERROR",
+				title: "Validation error",
+				body: `Duplicate field name at ${validateUniqueFieldName.duplicateName}`,
+			})
+			return
+		}
+
+		validator
+			.validate({ model })
+			.then(() => {
+				if (props.modelNames?.includes(model.name!)) {
+					Toast({
+						type: "ERROR",
+						title: "Validation error",
+						body: "Model name must be unique",
+					})
+				} else {
+					props.onSubmit?.call(this, {
+						model,
+						apiSchema,
+						id: shortId.generate(),
+					})
+					handleClose()
+				}
+			})
+			.catch((e) => {
+				Toast({ type: "ERROR", title: "Validation error", body: e.message })
+			})
 	}
 
 	return (
@@ -83,9 +132,9 @@ const Create: FC<CreateProps> = (props) => {
 				handleClearApiSchema()
 			}}
 		>
-			<div className="text-xl font-bold">Create Schema</div>
+			<div className="text-xl font-medium">Create Schema</div>
 
-			<div className="mt-12">
+			<div className="mt-6">
 				<div className="mb-3">Model</div>
 				<Input
 					label="Model name"
@@ -137,12 +186,14 @@ const Create: FC<CreateProps> = (props) => {
 								disabled={isPrimaryKey(field)}
 							/>
 							<div className="w-12">
-								<div
-									onClick={() => handleRemoveField(index)}
-									className="hidden group-hover:block bg-main-red text-white p-2 w-fit rounded-full cursor-pointer"
-								>
-									<CloseSVG className="w-3" />
-								</div>
+								{!isPrimaryKey(field.name) && model.fields!.length > 2 && (
+									<div
+										onClick={() => handleRemoveField(index)}
+										className="hidden group-hover:block bg-main-red text-white p-2 w-fit rounded-full cursor-pointer"
+									>
+										<CloseSVG className="w-3" />
+									</div>
+								)}
 							</div>
 						</div>
 					))}

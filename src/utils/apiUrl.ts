@@ -1,4 +1,6 @@
 const apiUrl = (url: string, modelName?: string) => {
+	if (!process.browser) return ""
+	
 	const clientUrl = `${location.protocol}//${location.host}`
 
 	return (

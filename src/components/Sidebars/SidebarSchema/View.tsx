@@ -22,12 +22,27 @@ const View: FC<ViewProps> = (props) => {
 		cloneObj(props.schema.model)
 	)
 
-	const { apiSchema, getApiMethodColor } = useApiSchema({
+	const { apiSchema } = useApiSchema({
 		model,
 		apiSchema: props.schema.apiSchema
 			? cloneObj(props.schema.apiSchema)
 			: undefined,
 	})
+
+	const getApiMethodColor = (name: string) => {
+		switch (name) {
+			case "POST":
+				return "text-main-blue"
+			case "PATCH":
+				return "text-main-yellow"
+			case "PUT":
+				return "text-main-orange"
+			case "DELETE":
+				return "text-main-red"
+			default:
+				return "text-main-green"
+		}
+	}
 
 	const statusDot = (status: boolean) => {
 		return status ? (
@@ -62,16 +77,17 @@ const View: FC<ViewProps> = (props) => {
 			}
 		>
 			<div>
-				<div className="text-xl font-bold">View Schema</div>
+				<div className="text-xl font-medium">View Schema</div>
 
-				<div className="mt-12">
+				<div className="mt-6">
 					<div className="mb-3">Model</div>
 					<Input
 						label="Model name"
 						name="Model name"
 						value={model.name}
-						onChangeValue={handleChangeModelName}
+						readOnly
 						required
+						disabled
 					/>
 
 					<div className="flex space-x-3 mt-6 mb-3">

@@ -8,7 +8,6 @@ import React, {
 	useCallback,
 	useContext,
 	useMemo,
-	useRef,
 	useState,
 } from "react"
 import {
@@ -17,7 +16,6 @@ import {
 	useLazyQuery,
 	useMutation,
 	useQuery,
-	DocumentNode,
 } from "@apollo/client"
 import {
 	APP_BY_ID_QUERY,
@@ -28,7 +26,6 @@ import {
 	DELETE_SCHEMA_MUTATION,
 	SEARCH_USER_QUERY,
 	SEND_INVITE_MUTATION,
-	GET_MEMBERS_BY_APP,
 	useGetMembersByApp,
 } from "@/src/gql"
 import { IApp, IMember, IUser } from "@/src/types"
@@ -43,12 +40,12 @@ import { useFormik } from "formik"
 import * as Yup from "yup"
 import Swal from "sweetalert2"
 import { ISchema } from "@/src/types"
-import LoadingPage from "@/src/components/Loading/LoadingPage"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import Toast from "@/src/components/Toast"
 import useComponentClickOutside from "@/src/hooks/useComponentClickOutside"
 import LoadingSVG from "@/public/loading.svg"
+import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
 
 interface Props {
 	query: {
@@ -179,6 +176,13 @@ const App: FC = () => {
 		[app, formik.values, isEdit]
 	)
 
+	const session = useSession()
+
+	const isOwner = useMemo(() => {
+		if (session.data?.user._id !== app?.user._id) return false
+		return true
+	}, [app, session])
+
 	return (
 		<div>
 			<h3 className="text-xl mb-6">App Details</h3>
@@ -207,37 +211,50 @@ const App: FC = () => {
 					required
 				/>
 
-				{isEdit ? (
+				<div className="flex gap-x-2">
+					<div>API endpoint:</div>
+					<input
+						className="grow px-2"
+						defaultValue={apiUrl(app?.apiConfigs.apiTypes[0].url!)}
+						readOnly
+					/>
+				</div>
+
+				{isOwner && (
 					<>
-						<button
-							type="submit"
-							className="text-white bg-main-blue px-6 py-3 w-full rounded-lg mt-6"
-						>
-							Save
-						</button>
-						<button
-							type="button"
-							onClick={handleCancel}
-							className="text-white bg-gray-400 px-6 py-3 w-full rounded-lg"
-						>
-							Cancel
-						</button>
-						<button
-							type="button"
-							onClick={handleDelete}
-							className="text-white bg-main-red px-6 py-3 w-full rounded-lg"
-						>
-							Delete
-						</button>
+						{isEdit ? (
+							<>
+								<button
+									type="submit"
+									className="text-white bg-main-blue px-6 py-3 w-full rounded-lg mt-6"
+								>
+									Save
+								</button>
+								<button
+									type="button"
+									onClick={handleCancel}
+									className="text-white bg-gray-400 px-6 py-3 w-full rounded-lg"
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									onClick={handleDelete}
+									className="text-white bg-main-red px-6 py-3 w-full rounded-lg"
+								>
+									Delete
+								</button>
+							</>
+						) : (
+							<button
+								type="button"
+								onClick={handelOpenEdit}
+								className="text-white bg-main-blue px-6 py-3 w-full rounded-lg mt-6"
+							>
+								Edit
+							</button>
+						)}
 					</>
-				) : (
-					<button
-						type="button"
-						onClick={handelOpenEdit}
-						className="text-white bg-main-blue px-6 py-3 w-full rounded-lg mt-6"
-					>
-						Edit
-					</button>
 				)}
 			</form>
 		</div>
@@ -256,7 +273,6 @@ const Schema: FC = () => {
 	}, [app])
 
 	const handleUpdate = async (schema: ISchema) => {
-		console.log(schema)
 		await updateSchema({
 			variables: {
 				input: {
@@ -331,6 +347,11 @@ const Schema: FC = () => {
 		}
 	}
 
+	const modelNames = useMemo(() => {
+		if (!app) return []
+		return app.modelConfigs.models.map((e) => e.name)
+	}, [app])
+
 	return (
 		<div>
 			<h3 className="text-xl mb-6">Schema Details</h3>
@@ -350,6 +371,7 @@ const Schema: FC = () => {
 						</div>
 					}
 					onSubmit={handleCreate}
+					modelNames={modelNames}
 				/>
 				{schemas.map((schema) => (
 					<div key={schema.model._id} className="flex items-center gap-x-3">
@@ -454,9 +476,11 @@ const Members: FC = () => {
 	const [searchEmail, setSearchEmail] = useState<string>("")
 	const [fetechSearch, { loading, data }] =
 		useLazyQuery<{ searchUser: IUser[] }>(SEARCH_USER_QUERY)
-	const members = useGetMembersByApp({
-		variables: { input: { appId: app!._id } },
-	})
+	// const members = useGetMembersByApp({
+	// 	variables: { input: { appId: app!._id } },
+	// })
+
+	const members = app!.members
 
 	const [show, setShow] = useState<boolean>(false)
 
@@ -485,6 +509,11 @@ const Members: FC = () => {
 					label="Email"
 					placeholder="Seach by email in tront account"
 					onChangeValue={setSearchEmail}
+					onClick={() => {
+						if (searchEmail) {
+							setShow(true)
+						}
+					}}
 				/>
 				<div className="text-sm text-gray-400 mt-1">
 					* Members can create, update, and delete schema in this app
@@ -495,7 +524,9 @@ const Members: FC = () => {
 						className="absolute top-20 left-0 bg-white z-50 w-full rounded-lg p-2 shadow-lg space-y-2"
 					>
 						{loading && (
-							<LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />
+							<div className="flex justify-center">
+								<LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />
+							</div>
 						)}
 						{!loading &&
 							data?.searchUser?.map((u) => (
@@ -503,7 +534,7 @@ const Members: FC = () => {
 									<MemberCard
 										user={u}
 										isMe={u._id == session.data?.user._id}
-										member={members.data?.find((m) => m.user._id === u._id)}
+										member={members?.find((m) => m.user._id === u._id)}
 									/>
 								</div>
 							))}
@@ -511,40 +542,37 @@ const Members: FC = () => {
 					</div>
 				)}
 			</div>
-			{members.loading ? (
-				<LoadingSVG className="w-12 h-12 animate-spin text-main-blue" />
-			) : (
-				<>
-					<div className="mt-6">Members ({members.data?.length})</div>
-					<div className="ml-3 mt-3 space-y-4">
-						{members.data?.map((member) => (
-							<div
-								key={member._id}
-								className={`flex items-center justify-between ${
-									member.status ? "text-black" : "text-gray-400"
-								}`}
-							>
-								<div className="flex items-center gap-3">
-									<Image
-										src={member.user.avatar || ""}
-										width={24}
-										height={24}
-										objectFit="cover"
-										loader={({ src }) => src}
-										unoptimized
-										alt=""
-									/>
-									<div>{member.user.email}</div>
-								</div>
-								<div>
-									{!member.status && <>Invited to </>}
-									<span>{member.role}</span>
-								</div>
+
+			<>
+				<div className="mt-6">Members ({members?.length})</div>
+				<div className="ml-3 mt-3 space-y-4">
+					{members?.map((member) => (
+						<div
+							key={member._id}
+							className={`flex items-center justify-between ${
+								member.status ? "text-black" : "text-gray-400"
+							}`}
+						>
+							<div className="flex items-center gap-3">
+								<Image
+									src={member.user.avatar || ""}
+									width={24}
+									height={24}
+									objectFit="cover"
+									loader={({ src }) => src}
+									unoptimized
+									alt=""
+								/>
+								<div>{member.user.email}</div>
 							</div>
-						))}
-					</div>
-				</>
-			)}
+							<div>
+								{!member.status && <>Invited to </>}
+								<span>{member.role}</span>
+							</div>
+						</div>
+					))}
+				</div>
+			</>
 		</div>
 	)
 }
@@ -556,22 +584,25 @@ const Console: NextPage<Props> = (props) => {
 		},
 	})
 
-	if (loading) return <LoadingPage />
-
 	return (
 		<>
 			<Navbar />
-			{!data ? (
-				<div className="w-screen h-screen flex flex-col justify-center items-center">
 
+			<LoadingLayout
+				isLoading={loading}
+				isEmpty={!data}
+				emptyContent={
+					<div className="w-screen h-screen flex flex-col justify-center items-center">
 						<h3 className="">No App found!</h3>
 						<Link href="/apps">
-							<a className="mt-3 text-xl text-main-blue underline">Back to apps</a>
+							<a className="mt-3 text-xl text-main-blue underline">
+								Back to apps
+							</a>
 						</Link>
-
-				</div>
-			) : (
-				<Context.Provider value={{ app: data!.app, refetch }}>
+					</div>
+				}
+			>
+				<Context.Provider value={{ app: data?.app, refetch }}>
 					<div className="container mt-12 py-12 flex justify-center">
 						<div className="xl:w-1/2 w-full">
 							<Tab
@@ -584,7 +615,7 @@ const Console: NextPage<Props> = (props) => {
 						</div>
 					</div>
 				</Context.Provider>
-			)}
+			</LoadingLayout>
 		</>
 	)
 }

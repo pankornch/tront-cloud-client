@@ -11,7 +11,6 @@ import auth from "@/src/middlewares/auth"
 import axios from "axios"
 import Input from "@/src/components/Forms/Input"
 import SidebarSchema from "@/src/components/Sidebars/SidebarSchema"
-import LoadingPage from "@/src/components/Loading/LoadingPage"
 import Link from "next/link"
 import Sidebar from "@/src/components/Sidebars/Sidebar"
 import { dataTypes } from "@/src/utils/constants"
@@ -19,6 +18,8 @@ import Toast from "@/src/components/Toast"
 import { RefreshIcon } from "@heroicons/react/solid"
 import LoadingSVG from "@/public/loading.svg"
 import { useRouter } from "next/router"
+import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
+import getApiUrl from "@/src/utils/apiUrl"
 
 interface Props {
 	query: {
@@ -52,11 +53,13 @@ const Index: NextPage<Props> = (props) => {
 
 	const [insertForm, setInsertForm] = useState<Record<string, string>>({})
 
+	// fetch api when selectModel
 	useEffect(() => {
 		if (!data || !selectedModel) return
 		fetchApi()
 	}, [data, models, selectedModel])
 
+	// when browser loaded
 	useEffect(() => {
 		if (!router.query.model && !data) return
 		if (!data) return
@@ -78,44 +81,15 @@ const Index: NextPage<Props> = (props) => {
 	const apiUrl = useMemo(() => {
 		if (!data) return ""
 		const url = data!.app.apiConfigs.apiTypes[0].url!
-		const $url = `${location.protocol}//${location.host}`
 		const modelName = models.find((e) => e._id === selectedModel)?.name
-		return (
-			url.replace(process.env.NEXT_PUBLIC_BASE_URL_API!, $url) + `/${modelName}`
-		)
+		return getApiUrl(url, modelName)
 	}, [data, selectedModel])
 
 	const currentModel = useMemo(() => {
 		return data?.app.modelConfigs.models.find((e) => e._id === selectedModel)
 	}, [data?.app.modelConfigs.models, selectedModel])
 
-	const renderDataComponent = useCallback(() => {
-		if (!data || !currentModel) return null
-
-		const getKeys = currentModel!.fields!.map((e) => e.name!)
-
-		switch (selectData) {
-			case "Table":
-				return (
-					<div className="w-full overflow-x-scroll shadow-lg rounded-lg overflow-hidden">
-						<Table keys={getKeys} loading={apiLoading} data={apiData?.data} />
-					</div>
-				)
-			default:
-				return (
-					<pre className="h-[calc(100vh-100px)] overflow-y-auto p-6 border-2 border-gray-300 rounded-lg shadow-md">
-						{apiLoading ? (
-							<div className="w-full flex items-center justify-center p-12 h-full space-y-6 cursor-wait">
-								<LoadingSVG className="h-12 text-main-blue animate-spin" />
-							</div>
-						) : (
-							<>{JSON.stringify(apiData, null, 2)}</>
-						)}
-					</pre>
-				)
-		}
-	}, [data, selectData, apiData, apiLoading, currentModel])
-
+	// list all schema
 	const schemas = useMemo<ISchema[] | undefined>(() => {
 		if (!data) return
 
@@ -133,10 +107,12 @@ const Index: NextPage<Props> = (props) => {
 		return $schemas
 	}, [data])
 
+	// schema with select model
 	const schema = useMemo(() => {
 		return schemas?.find((e) => e.model._id === selectedModel)
 	}, [schemas, selectedModel])
 
+	// fetch api
 	const fetchApi = useCallback(
 		async (props?: { page?: number; limit?: number }) => {
 			if (
@@ -168,16 +144,44 @@ const Index: NextPage<Props> = (props) => {
 		[data, currentModel]
 	)
 
+	const renderDataComponent = useCallback(() => {
+		if (!data || !currentModel) return null
+
+		const getKeys = currentModel!.fields!.map((e) => e.name!)
+
+		switch (selectData) {
+			case "Table":
+				return (
+					<div className="w-full overflow-x-scroll shadow-lg rounded-lg overflow-hidden">
+						<Table keys={getKeys} loading={apiLoading} data={apiData?.data} />
+					</div>
+				)
+			default:
+				return (
+					<pre className="h-[calc(100vh-100px)] overflow-y-auto p-6 border-2 border-gray-300 rounded-lg shadow-md">
+						{apiLoading ? (
+							<div className="w-full flex items-center justify-center p-12 h-full space-y-6 cursor-wait">
+								<LoadingSVG className="h-12 text-main-blue animate-spin" />
+							</div>
+						) : (
+							<>{JSON.stringify(apiData, null, 2)}</>
+						)}
+					</pre>
+				)
+		}
+	}, [data, selectData, apiData, apiLoading, currentModel])
+
+	// add data
 	const handleInsertData = async () => {
 		try {
-			if (!schema?.apiSchema?.methods?.find(e => e.name === "POST")?.active) {
+			if (!schema?.apiSchema?.methods?.find((e) => e.name === "POST")?.active) {
 				handleCloseInsertSidebar()
 				Toast({
 					type: "ERROR",
 					title: `Method POST for ${schema?.model.name} API doesn't active!`,
 					body: "Enable method POST to insert data",
 				})
-				return 
+				return
 			}
 			await axios.post(apiUrl, insertForm)
 			Toast({ type: "SUCCESS", title: "Data Inserted" })
@@ -191,29 +195,35 @@ const Index: NextPage<Props> = (props) => {
 
 	let handleCloseInsertSidebar: () => void
 
-	if (loading) return <LoadingPage />
-
 	return (
 		<div>
 			<Navbar />
-			{!data ? (
-				<div className="w-screen h-screen flex flex-col justify-center items-center">
-					<h3 className="">No App found!</h3>
-					<Link href="/apps">
-						<a className="mt-3 text-xl text-main-blue underline">
-							Back to apps
-						</a>
-					</Link>
-				</div>
-			) : isEmptyData ? (
-				<div className="w-screen h-screen flex justify-center items-center">
-					<Link href={`/apps/${data?.app.slug}/console`}>
-						<a className="text-white bg-main-blue text-lg rounded-lg px-4 py-2">
-							Create Schema
-						</a>
-					</Link>
-				</div>
-			) : (
+			<LoadingLayout
+				isLoading={loading}
+				isEmpty={!data || isEmptyData}
+				emptyContent={
+					<>
+						{!data ? (
+							<div className="w-screen h-screen flex flex-col justify-center items-center">
+								<h3 className="">No App found!</h3>
+								<Link href="/apps">
+									<a className="mt-3 text-xl text-main-blue underline">
+										Back to apps
+									</a>
+								</Link>
+							</div>
+						) : (
+							<div className="w-screen h-screen flex justify-center items-center">
+								<Link href={`/apps/${data?.app.slug}/console`}>
+									<a className="text-white bg-main-blue text-lg rounded-lg px-4 py-2">
+										Create Schema
+									</a>
+								</Link>
+							</div>
+						)}
+					</>
+				}
+			>
 				<>
 					<div className="container mt-20 py-12 space-y-12">
 						<div className="flex justify-center items-center space-x-3">
@@ -241,8 +251,12 @@ const Index: NextPage<Props> = (props) => {
 							)}
 						</div>
 
-						<div>
-							<Input value={apiUrl} readOnly />
+						<div className="flex gap-x-3 text-lg">
+							{/* <Input value={apiUrl} readOnly /> */}
+							<div className="text-semibold">API endpoint:</div>
+							<Link href={apiUrl}>
+								<a className="text-main-blue underline underline-offset-4">{apiUrl}</a>
+							</Link>
 						</div>
 
 						<div className="flex flex-col sm:flex-row justify-end sm:justify-between items-start sm:items-end gap-y-6 sm:gap-0">
@@ -358,7 +372,7 @@ const Index: NextPage<Props> = (props) => {
 						</div>
 					</div>
 				</>
-			)}
+			</LoadingLayout>
 		</div>
 	)
 }

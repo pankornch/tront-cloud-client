@@ -54,7 +54,7 @@ const Popup: FC<PopupProps> = (props) => {
 
 					{!shouldClose && (
 						<div
-							className={`transition-all duration-300 w-screen md:w-[40rem] h-screen fixed top-0 ${animateShow} z-40 pt-24 p-6 shadow-lg bg-white overflow-auto`}
+							className={`transition-all duration-300 w-screen md:w-[40rem] h-screen fixed top-0 ${animateShow} z-40 py-24 p-6 shadow-lg bg-white overflow-y-scroll`}
 						>
 							<div
 								onClick={props.onClose}

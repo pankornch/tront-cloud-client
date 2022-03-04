@@ -21,6 +21,7 @@ interface Props {
 	className?: string
 	readOnly?: boolean
 	showTextError?: boolean
+	onClick?: React.MouseEventHandler<HTMLInputElement>
 }
 
 const Input: FC<Props> = (props) => {
@@ -78,6 +79,7 @@ const Input: FC<Props> = (props) => {
 					placeholder={props.placeholder}
 					type={props.type}
 					readOnly={props.readOnly}
+					onClick={props.onClick}
 				/>
 			</div>
 			{getErrorText && props.showTextError && (

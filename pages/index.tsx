@@ -389,7 +389,7 @@ const Home: NextPage = () => {
 										/>
 										<Select
 											options={[10, 50, 100]}
-											className="w-24"
+											className="w-16 sm:w-20"
 											label="Limit"
 										/>
 									</div>
