@@ -1,6 +1,6 @@
 import Input from "@/src/components/Forms/Input"
 import { NextPage } from "next"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import EmailSVG from "@/public/email.svg"
 import PasswordSVG from "@/public/lock.svg"
 import { useFormik } from "formik"
@@ -29,6 +29,8 @@ const SignUpPage: NextPage = () => {
 	const { data, status } = useSession()
 
 	const [signUp] = useMutation(SIGN_UP_MUTATION)
+
+	const [loading, setLoading] = useState<boolean>(true)
 
 	const validator = Yup.object().shape({
 		email: Yup.string().email().required(),
@@ -86,12 +88,16 @@ const SignUpPage: NextPage = () => {
 	const errorText = useErrorText<IForm>(formik)
 
 	useEffect(() => {
-		if (data) {
-			router.replace("/apps")
+		if (status !== "loading") {
+			setLoading(false)
 		}
-	}, [data])
+		if (data) {
+			const stop = LoadingOverLay()
+			router.replace("/apps").then(stop)
+		}
+	}, [data, status])
 
-	if (status == "loading") {
+	if (loading) {
 		return <LoadingPage></LoadingPage>
 	}
 

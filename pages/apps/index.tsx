@@ -17,6 +17,7 @@ import {
 import Toast from "@/src/components/Toast"
 import LoadingOverLay from "@/src/components/Loading/LoadingOverlay"
 import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
+import Auth from "@/src/middlewares/AuthHOC"
 
 const Index: NextPage = () => {
 	const router = useRouter()
@@ -70,7 +71,6 @@ const Index: NextPage = () => {
 
 		close()
 	}
-
 
 	return (
 		<div>
@@ -171,7 +171,7 @@ const Index: NextPage = () => {
 					<div className="flex justify-between items-center">
 						<div className="text-xl">Apps</div>
 						<Link href="/apps/create">
-							<a className="bg-main-blue text-white px-3 py-2 cursor-pointer rounded-lg">
+							<a className="bg-main-blue text-white px-3 py-2 cursor-pointer rounded-lg hover:scale-110 transition-all">
 								Create App
 							</a>
 						</Link>
@@ -183,7 +183,7 @@ const Index: NextPage = () => {
 						{data?.apps.map((app) => (
 							<div
 								key={app._id}
-								className="shadow-lg rounded-lg px-6 py-4 border border-gray-100 hover:ring hover:ring-main-blue-light"
+								className="shadow-lg rounded-lg px-6 py-4 border border-gray-100 hover:ring hover:ring-main-blue-light hover:scale-110 transition-all"
 							>
 								<div className="flex justify-between items-center">
 									<div className="text-xl font-semibold">{app.name}</div>
@@ -212,13 +212,13 @@ const Index: NextPage = () => {
 								<div className="flex space-x-3">
 									<button
 										onClick={() => router.push(`/apps/${app.slug}/console`)}
-										className="bg-main-blue text-white px-3 py-1 rounded-md w-fit mt-3"
+										className="bg-main-blue text-white px-3 py-1 rounded-md w-fit mt-3 hover:scale-110 transition-all"
 									>
 										Open App
 									</button>
 									<button
 										onClick={() => router.push(`/apps/${app.slug}/data`)}
-										className="bg-main-green text-white px-3 py-1 rounded-md w-fit mt-3"
+										className="bg-main-green text-white px-3 py-1 rounded-md w-fit mt-3 hover:scale-110 transition-all"
 									>
 										Data
 									</button>
@@ -232,9 +232,9 @@ const Index: NextPage = () => {
 	)
 }
 
-export const getServerSideProps = auth(async () => {
-	return {
-		props: {},
-	}
-})
-export default Index
+// export const getServerSideProps = auth(async () => {
+// 	return {
+// 		props: {},
+// 	}
+// })
+export default Auth(Index)

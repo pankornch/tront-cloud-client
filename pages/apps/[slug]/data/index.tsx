@@ -5,7 +5,7 @@ import Select from "@/src/components/Forms/Select"
 import Pagination from "@/src/components/Pagination"
 import Table from "@/src/components/Table"
 import { useQuery } from "@apollo/client"
-import { IApp, IModel, ISchema } from "@/src/types"
+import { IApp, IModel, ISchema, ModelTypes } from "@/src/types"
 import { APP_BY_ID_QUERY } from "@/src/gql"
 import auth from "@/src/middlewares/auth"
 import axios from "axios"
@@ -15,11 +15,12 @@ import Link from "next/link"
 import Sidebar from "@/src/components/Sidebars/Sidebar"
 import { dataTypes } from "@/src/utils/constants"
 import Toast from "@/src/components/Toast"
-import { RefreshIcon } from "@heroicons/react/solid"
+import { PencilIcon, RefreshIcon, TrashIcon } from "@heroicons/react/solid"
 import LoadingSVG from "@/public/loading.svg"
 import { useRouter } from "next/router"
 import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
 import getApiUrl from "@/src/utils/apiUrl"
+import Swal from "sweetalert2"
 
 interface Props {
 	query: {
@@ -47,6 +48,10 @@ const Index: NextPage<Props> = (props) => {
 
 	const [isEmptyData, setIsEmptyData] = useState<boolean>(false)
 
+	const [isEdit, setIsEdit] = useState<boolean>(false)
+
+	const [isDataOpen, setIsDataOpen] = useState<boolean>(false)
+
 	const models = useMemo(() => {
 		return data?.app.modelConfigs?.models || []
 	}, [data?.app.modelConfigs?.models])
@@ -56,6 +61,16 @@ const Index: NextPage<Props> = (props) => {
 	// fetch api when selectModel
 	useEffect(() => {
 		if (!data || !selectedModel) return
+		router.push(
+			{
+				pathname: `/apps/${data?.app.slug}/data`,
+				query: {
+					model: currentModel?.name,
+				},
+			},
+			undefined,
+			{ shallow: true }
+		)
 		fetchApi()
 	}, [data, models, selectedModel])
 
@@ -130,18 +145,29 @@ const Index: NextPage<Props> = (props) => {
 
 			if (!data || !currentModel) return
 			setApiLoading(true)
-			
+
 			const skip = ((props?.page || currentPage) - 1) * selectPageSize
 			const limit = props?.limit || selectPageSize
 
 			const url = `${apiUrl}?skip=${skip}&limit=${limit}`
 			const res = await axios.get(url)
-			
+
 			setApiData(res.data)
 			setApiLoading(false)
 		},
 		[data, currentModel]
 	)
+
+	const getInputType = (type: ModelTypes) => {
+		switch (type) {
+			case "NUMBER":
+				return "number"
+			case "DATE":
+				return "datetime-local"
+			default:
+				return "text"
+		}
+	}
 
 	const renderDataComponent = useCallback(() => {
 		if (!data || !currentModel) return null
@@ -152,7 +178,75 @@ const Index: NextPage<Props> = (props) => {
 			case "Table":
 				return (
 					<div className="w-full overflow-x-scroll shadow-lg rounded-lg overflow-hidden">
-						<Table keys={getKeys} loading={apiLoading} data={apiData?.data} />
+						<Table
+							keys={getKeys}
+							loading={apiLoading}
+							data={apiData?.data}
+							actions={(row) => (
+								<div className="flex justify-evenly">
+									<PencilIcon
+										className="w-6 h-6 cursor-pointer text-gray-500 hover:scale-125 transition-all"
+										onClick={() => {
+											if (
+												!schema?.apiSchema?.methods?.find(
+													(e) => e.name === "PATCH"
+												)?.active
+											) {
+												Toast({
+													type: "ERROR",
+													title: `Method PATCH for ${schema?.model.name} API doesn't active!`,
+													body: "Enable method PATCH to update data",
+												})
+												return
+											}
+											setIsEdit(true)
+											setInsertForm(row as Record<string, string>)
+											setIsDataOpen(true)
+										}}
+									/>
+									<TrashIcon
+										className="w-6 h-6 cursor-pointer text-main-red  hover:scale-125 transition-all"
+										onClick={async () => {
+											if (
+												!schema?.apiSchema?.methods?.find(
+													(e) => e.name === "DELETE"
+												)?.active
+											) {
+												Toast({
+													type: "ERROR",
+													title: `Method DELETE for ${schema?.model.name} API doesn't active!`,
+													body: "Enable method DELETE to delete data",
+												})
+												return
+											}
+											const result = await Swal.fire({
+												title: "Are you sure?",
+												text: "You won't be able to revert this!",
+												icon: "warning",
+												showCancelButton: true,
+												confirmButtonColor: "#2680fe",
+												cancelButtonColor: "#d33",
+												confirmButtonText: "Yes, delete it!",
+											})
+
+											if (result.isConfirmed) {
+												await axios.delete(apiUrl + "/" + row._id)
+
+												Swal.fire({
+													title: "Deleted!",
+													text: "Your app has been deleted.",
+													icon: "success",
+													confirmButtonColor: "#2680fe",
+													timer: 1500,
+												})
+
+												fetchApi()
+											}
+										}}
+									/>
+								</div>
+							)}
+						/>
 					</div>
 				)
 			default:
@@ -182,13 +276,54 @@ const Index: NextPage<Props> = (props) => {
 				})
 				return
 			}
-			await axios.post(apiUrl, insertForm)
-			Toast({ type: "SUCCESS", title: "Data Inserted" })
+
+			const url = isEdit ? `${apiUrl}/${insertForm._id}` : apiUrl
+			const method = isEdit ? "patch" : "post"
+
+			if (isEdit) {
+				if (
+					!schema?.apiSchema?.methods?.find((e) => e.name === "DELETE")?.active
+				) {
+					Toast({
+						type: "ERROR",
+						title: `Method DELETE for ${schema?.model.name} API doesn't active!`,
+						body: "Enable method DELETE to delete data",
+					})
+					return
+				}
+				const result = await Swal.fire({
+					title: "Are you sure?",
+					text: "You won't be able to revert this!",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#2680fe",
+					cancelButtonColor: "#d33",
+					confirmButtonText: "Yes, update it!",
+				})
+
+				if (!result.isConfirmed) return
+			}
+
+			delete insertForm._id
+
+			await axios({
+				url,
+				method,
+				data: insertForm,
+			})
+
+			const body = isEdit ? "Updated" : "Inserted"
+
+			Toast({ type: "SUCCESS", title: "Success", body })
 			fetchApi()
-			handleCloseInsertSidebar()
+			setIsDataOpen(false)
 			setInsertForm({})
 		} catch (error) {
-			Toast({ type: "ERROR", title: "Data Inserted Error" })
+			console.log(error)
+			Toast({
+				type: "ERROR",
+				title: `Data ${isEdit ? "Inserte" : "Update"} Error`,
+			})
 		}
 	}
 
@@ -225,7 +360,7 @@ const Index: NextPage<Props> = (props) => {
 			>
 				<>
 					<div className="container mt-20 py-12">
-						<div className="xl:w-1/2 w-full space-y-12 m-auto">
+						<div className="xl:w-3/4 w-full space-y-12 m-auto">
 							<div className="flex justify-center items-center space-x-3">
 								<h1 className="text-2xl font-bold">API:</h1>
 
@@ -294,16 +429,27 @@ const Index: NextPage<Props> = (props) => {
 									>
 										<RefreshIcon className="w-4" />
 									</button>
-									<Sidebar.Button
-										label={
-											<div className="bg-main-blue px-3 py-1 rounded-md text-white">
-												Insert
-											</div>
-										}
-										handleClose={(close) => (handleCloseInsertSidebar = close)}
+
+									<button
+										onClick={() => {
+											setIsDataOpen(true)
+											setIsEdit(false)
+										}}
+										className="bg-main-blue px-3 py-1 rounded-md text-white"
+									>
+										Insert
+									</button>
+
+									<Sidebar.Popup
+										onClose={() => {
+											setIsDataOpen(false)
+											setInsertForm({})
+											setIsEdit(false)
+										}}
+										show={isDataOpen}
 									>
 										<div className="flex flex-col gap-y-6">
-											<h4>Insert data</h4>
+											<h6>{isEdit ? "Edit" : "Insert"} data</h6>
 											<Input
 												disabled
 												defaultValue={currentModel?.name}
@@ -321,7 +467,7 @@ const Index: NextPage<Props> = (props) => {
 													{currentModel?.fields?.map((field, index) => (
 														<div
 															key={index}
-															className="flex space-x-3 group items-center"
+															className="flex gap-x-3 group items-center"
 														>
 															<Input
 																className="w-40"
@@ -336,10 +482,12 @@ const Index: NextPage<Props> = (props) => {
 																value={field.type}
 																disabled
 															/>
+
 															<Input
-																className="grown"
+																className="grown overflow-auto"
 																disabled={field.name === "_id"}
 																value={insertForm[field.name] || ""}
+																type={getInputType(field.type)}
 																onChangeValue={(val) =>
 																	setInsertForm((prev) => ({
 																		...prev,
@@ -357,20 +505,25 @@ const Index: NextPage<Props> = (props) => {
 												type="button"
 												onClick={handleInsertData}
 											>
-												Add
+												{isEdit ? "Update" : "Add"}
 											</button>
 										</div>
-									</Sidebar.Button>
+									</Sidebar.Popup>
 								</div>
 							</div>
 
 							{renderDataComponent()}
 
-							<div className="flex justify-end">
+							<div className="flex justify-between">
+								<div>
+									Showing {(currentPage - 1) * selectPageSize || 1} to{" "}
+									{selectPageSize * currentPage} of {apiData?.totalCounts}{" "}
+									results
+								</div>
 								<Pagination
 									currentPage={currentPage}
 									pageSize={selectPageSize}
-									totalCount={apiData?.totalCounts || 0}
+									totalCount={apiData?.totalCounts || 1}
 									onPageChange={(p) => {
 										setCurrentPage(p)
 										fetchApi({ page: p })

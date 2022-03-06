@@ -1,7 +1,7 @@
 import React, { FC, useMemo, useState } from "react"
 import { ChangeValueHandler } from "../../types"
 
-type InputTypes = "email" | "text" | "password" | "number"
+type InputTypes = "email" | "text" | "password" | "number" | "date" | "datetime-local"
 
 interface Props {
 	type?: InputTypes
@@ -44,6 +44,10 @@ const Input: FC<Props> = (props) => {
 		return props.errorText || errorText
 	}, [props.errorText, errorText])
 
+	const inputClass = useMemo(() => {
+		return `input${props.leftIcon ? " !pl-12" : ""}${ getErrorText ? " !border-main-red" : "" }`
+	}, [getErrorText, props.leftIcon])
+
 	return (
 		<div className={props.className}>
 			{props.label && (
@@ -65,9 +69,7 @@ const Input: FC<Props> = (props) => {
 				)}
 
 				<input
-					className={`input ${props.leftIcon ? "!pl-12" : ""} ${
-						getErrorText ? "!border-main-red" : ""
-					} `}
+					className={inputClass}
 					id={props.id}
 					name={props.name}
 					onBlur={handleBlur}

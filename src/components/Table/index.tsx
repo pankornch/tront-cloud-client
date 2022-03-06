@@ -2,33 +2,44 @@ import React, { FC, useMemo } from "react"
 import EmptySVG from "@/public/empty.svg"
 import LoadingSVG from "@/public/loading.svg"
 
-interface Props {
-	keys: string[] | number[]
-	data?: any[]
+interface Props<T> {
+	keys: (keyof T)[]
+	data: T[]
 	loading?: boolean
+	actions?: (row: T) => JSX.Element
 }
 
-const Table: FC<Props> = (props) => {
+function Table<T>(props: Props<T>) {
 	const head = useMemo(() => {
 		return (
 			<thead className="bg-main-blue text-white ">
 				<tr className="text-left divide-x">
 					{props.keys.map((e, i) => (
-						<th key={i} className="px-6 py-4 min-w-[10rem] overflow-hidden last:w-full">
+						<th key={i} className="px-6 py-4 min-w-[10rem] overflow-hidden">
 							{e}
 						</th>
 					))}
+					{props.data?.length > 0 && props.actions && (
+						<th className="px-6 py-4 min-w-[10rem] overflow-hidden">Actions</th>
+					)}
 				</tr>
 			</thead>
 		)
-	}, [props.keys])
+	}, [props.actions, props.data?.length, props.keys])
 
 	const body = useMemo(() => {
+		let colSpan = 0
+		if (props.data?.length > 0 && props.actions) {
+			colSpan = props.keys.length + 1
+		} else {
+			colSpan = props.keys.length
+		}
+
 		if (props.loading) {
 			return (
 				<tbody>
 					<tr>
-						<td colSpan={props.keys.length} className="">
+						<td colSpan={colSpan} className="">
 							<div className="w-full flex flex-col items-center p-12 bg-slate-50 space-y-6 cursor-wait">
 								<LoadingSVG className="h-12 text-main-blue animate-spin" />
 							</div>
@@ -42,7 +53,7 @@ const Table: FC<Props> = (props) => {
 			return (
 				<tbody>
 					<tr>
-						<td colSpan={props.keys.length} className="">
+						<td colSpan={colSpan} className="">
 							<div className="w-full flex flex-col items-center p-12 bg-slate-50 space-y-6">
 								<EmptySVG className="h-48 text-main-blue" />
 								<div>No data</div>
@@ -63,6 +74,9 @@ const Table: FC<Props> = (props) => {
 								{e[u]}
 							</td>
 						))}
+						{props.data?.length > 0 && props.actions && (
+							<td className="px-6 py-4">{props.actions(e)}</td>
+						)}
 					</tr>
 				))}
 			</tbody>
@@ -77,4 +91,4 @@ const Table: FC<Props> = (props) => {
 	)
 }
 
-export default React.memo(Table)
+export default React.memo(Table) as typeof Table

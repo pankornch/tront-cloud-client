@@ -5,7 +5,7 @@ export const dataTypes = [
     { label: "Number", value: "NUMBER" },
 	// { label: "Object", value: "OBJECT" },
 	// { label: "Array", value: "ARRAY" },
-	// { label: "Date", value: "DATE" },
+	{ label: "Date", value: "DATE" },
 ]
 export const relationshipTypes = [
 	{ label: "Has One", value: "HAS_ONE" },

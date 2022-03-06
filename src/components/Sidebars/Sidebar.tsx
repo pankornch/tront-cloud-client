@@ -1,6 +1,7 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import CloseSVG from "@/public/close.svg"
 import { createPortal } from "react-dom"
+import { AnimatePresence, motion } from "framer-motion"
 
 type childrenContent = JSX.Element | JSX.Element[]
 
@@ -9,64 +10,56 @@ interface Props {
 }
 
 interface PopupProps extends Props {
-	onClose?: () => any
+	onClose?: (bool: boolean) => any
 	show: boolean
+}
+
+const variants = {
+	open: {
+		right: 0,
+		transition: {
+			type: "spring",
+			bounce: 0,
+		},
+	},
+	closed: { right: "-100%" },
 }
 
 const Popup: FC<PopupProps> = (props) => {
 	const [mounted, setMounted] = useState<boolean>(false)
-	const [show, setShow] = useState<boolean>()
-	const [shouldClose, setShouldClose] = useState<boolean>(true)
-	const animateShow = useMemo(() => {
-		return show ? "right-0" : "-right-full"
-	}, [show])
 
 	useEffect(() => {
 		setMounted(true)
-
-		setTimeout(() => {
-			setShow(props.show)
-		}, 1)
-
-		if (!props.show) {
-			setTimeout(() => {
-				setShouldClose(true)
-			}, 250)
-		} else {
-			setShouldClose(false)
-		}
-
-		return () => {
-			setMounted(false)
-		}
-
-	}, [props.show])
+	}, [])
 
 	return mounted
 		? createPortal(
 				<>
-					{!shouldClose && (
-						<div
+					{props.show && (
+						<motion.div
 							className="w-screen h-screen bg-black opacity-25 fixed top-0 right-0 z-30"
-							onClick={props.onClose}
-						></div>
+							onClick={props.onClose?.bind(this, false)}
+						></motion.div>
 					)}
-
-					{!shouldClose && (
-						<div
-							className={`transition-all duration-300 w-screen md:w-[40rem] h-screen fixed top-0 ${animateShow} z-40 py-24 p-6 shadow-lg bg-white overflow-y-scroll`}
+					<AnimatePresence>
+						<motion.div
+							className={`w-screen md:w-[40rem] h-screen fixed top-0  z-40 py-24 p-6 shadow-lg bg-white overflow-y-scroll`}
+							variants={variants}
+							initial="closed"
+							animate={props.show ? "open" : "closed"}
+							exit="closed"
 						>
 							<div
-								onClick={props.onClose}
+								onClick={props.onClose?.bind(this, false)}
 								className="bg-main-red text-white p-2 w-fit rounded-full cursor-pointer absolute top-24 right-6"
 							>
 								<CloseSVG className="w-3" />
 							</div>
 							{props.children}
-						</div>
-					)}
+						</motion.div>
+					</AnimatePresence>
 				</>,
-				document.querySelector("#portal")!
+				document.getElementById("portal")!
 		  )
 		: null
 }
@@ -74,28 +67,37 @@ const Popup: FC<PopupProps> = (props) => {
 interface SidebarButtonProps extends Props {
 	label: JSX.Element
 	initialOpen?: boolean
-	onClose?: () => void
+	open?: boolean
+	onClose?: (bool: boolean) => void
 	handleClose?: (close: () => void) => void
 	onOpen?: () => void
 }
 
 const SidebarButton: FC<SidebarButtonProps> = (props) => {
-	const [open, setOpen] = useState<boolean>(props.initialOpen || false)
+	const [open, setOpen] = useState<boolean>(
+		props.open || props.initialOpen || false
+	)
 
 	const handleToggle = () => setOpen((prev) => !prev)
 
 	useEffect(() => {
-		if (!open) props.onClose?.call(this)
-		else {
-			props.onOpen?.call(this)
-		}
-	}, [open])
+		// if (!open) props.onClosse?.call(this, false)
+		// else {
+		// 	props.onOpen?.call(this)
+		// }
+	}, [open, props.open])
 
 	useEffect(() => {
 		props.handleClose?.call(this, () => {
 			setOpen(false)
+			props.onClose?.call(this, false)
 		})
 	}, [props.handleClose])
+
+	const onClose = () => {
+		setOpen(false)
+		props.onClose?.call(this, false)
+	}
 
 	return (
 		<div>
@@ -103,7 +105,7 @@ const SidebarButton: FC<SidebarButtonProps> = (props) => {
 				{props.label}
 			</button>
 
-			<Popup onClose={() => setOpen(false)} show={open}>
+			<Popup onClose={onClose} show={open}>
 				{props.children}
 			</Popup>
 		</div>

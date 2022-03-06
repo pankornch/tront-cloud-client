@@ -86,12 +86,13 @@ const LoginPage: NextPage = () => {
 	})
 
 	const errorText = useErrorText<IForm>(formik)
-
+	
 	useEffect(() => {
 		if (data) {
-			router.replace("/apps")
+			const stop = LoadingOverLay()
+			router.replace("/apps").then(stop)
 		}
-	}, [data])
+	}, [data, status])
 
 	if (status == "loading") {
 		return <LoadingPage></LoadingPage>

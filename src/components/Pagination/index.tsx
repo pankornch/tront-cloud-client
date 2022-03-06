@@ -45,8 +45,8 @@ const Pagination: FC<Props> = (props) => {
 	}
 
 	return (
-		<div className="bg-white px-4 py-3 flex items-center justify-between border-gray-200 sm:px-6">
-			<div className="flex-1 flex justify-between sm:hidden space-x-3">
+		<div className="bg-white flex items-center justify-between border-gray-200">
+			{/* <div className="flex-1 flex justify-between sm:hidden space-x-3">
 				<div
 					onClick={onPrevious}
 					className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
@@ -60,8 +60,8 @@ const Pagination: FC<Props> = (props) => {
 				>
 					Next
 				</div>
-			</div>
-			<div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+			</div> */}
+			<div className="flex-1 sm:flex sm:items-center sm:justify-between">
 				<div>
 					<nav
 						className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"

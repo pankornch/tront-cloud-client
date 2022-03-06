@@ -112,15 +112,15 @@ const Home: NextPage = () => {
 					config.
 				</h6>
 
-
-					<div className="relative w-4/5 h-20 lg:h-80">
-						<Image
-							src="/img-content.png"
-							layout="fill"
-							alt=""
-							objectFit="contain"
-							unoptimized
-						/>
+				<div className="relative w-4/5 h-20 lg:h-80">
+					<Image
+						src="/img-content.png"
+						layout="fill"
+						alt=""
+						objectFit="contain"
+						unoptimized
+						priority
+					/>
 				</div>
 
 				<Link href="/signup">
