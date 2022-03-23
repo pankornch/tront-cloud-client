@@ -201,6 +201,7 @@ const Index: NextPage<Props> = (props) => {
 											}
 											setIsEdit(true)
 											setInsertForm(row as Record<string, string>)
+											console.log(row)
 											setIsDataOpen(true)
 										}}
 									/>
@@ -335,7 +336,8 @@ const Index: NextPage<Props> = (props) => {
 				return (
 					<Input
 						className="w-40"
-						placeholder={insertForm[field.name] || ""}
+						placeholder={field.defaultValue.toString() || ""}
+						value={insertForm[field.name] || ""}
 						onChangeValue={(val) =>
 							setInsertForm((prev) => ({
 								...prev,
@@ -348,7 +350,8 @@ const Index: NextPage<Props> = (props) => {
 				return (
 					<Input
 						className="w-40"
-						placeholder={insertForm[field.name] || ""}
+						defaultValue={field.defaultValue.toString() || ""}
+						value={insertForm[field.name] || ""}
 						type="number"
 						onChangeValue={(val) =>
 							setInsertForm((prev) => ({
@@ -399,7 +402,7 @@ const Index: NextPage<Props> = (props) => {
 				return (
 					<Input
 						className="w-40"
-						value={field.defaultValue}
+						value={insertForm[field.name] || ""}
 						onChangeValue={(val) =>
 							setInsertForm((prev) => ({
 								...prev,
