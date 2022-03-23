@@ -1,11 +1,13 @@
+import { ModelTypes } from "../types"
 
 export const dataTypes = [
 	{ label: "Object ID", value: "OBJECT_ID" },
 	{ label: "String", value: "STRING" },
-    { label: "Number", value: "NUMBER" },
+	{ label: "Number", value: "NUMBER" },
 	// { label: "Object", value: "OBJECT" },
 	// { label: "Array", value: "ARRAY" },
 	{ label: "Date", value: "DATE" },
+	{ label: "Boolean", value: "BOOLEAN" },
 ]
 export const relationshipTypes = [
 	{ label: "Has One", value: "HAS_ONE" },

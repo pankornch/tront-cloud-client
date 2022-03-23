@@ -71,7 +71,7 @@ function Table<T>(props: Props<T>) {
 					>
 						{props.keys.map((u, o) => (
 							<td key={o} className="px-6 py-4">
-								{e[u]}
+								{(e[u] as any)?.toString()}
 							</td>
 						))}
 						{props.data?.length > 0 && props.actions && (

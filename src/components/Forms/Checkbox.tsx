@@ -31,26 +31,28 @@ const Checkbox: FC<Props> = (props) => {
 	}, [props.checked, checked])
 
 	return (
-		<div
-			className={`flex items-center relative w-fit ${
-				props.disabled ? "opacity-50" : ""
-			}`}
-		>
-			<input
-				name={props.name}
-				type="checkbox"
-				onChange={handleChange}
-				checked={checked}
-				onBlur={props.onBlur}
-				className="w-full h-full opacity-0 absolute top-0 left-0 z-10"
-				disabled={props.disabled}
-			/>
-			<div className={props.className || "w-4 h-4"}>
-				{checked ? <CheckedSVG /> : <UncheckSVG />}
+		<div className={props.className}>
+			<div
+				className={`flex items-center relative w-fit h-fit ${
+					props.disabled ? "opacity-50" : ""
+				}`}
+			>
+				<input
+					name={props.name}
+					type="checkbox"
+					onChange={handleChange}
+					checked={checked}
+					onBlur={props.onBlur}
+					className="w-full h-full opacity-0 absolute top-0 left-0 z-10"
+					disabled={props.disabled}
+				/>
+				<div className={"w-4 h-4"}>
+					{checked ? <CheckedSVG /> : <UncheckSVG />}
+				</div>
+				{props.label && (
+					<span className={props.labelClassName || "ml-3"}>{props.label}</span>
+				)}
 			</div>
-			{props.label && (
-				<span className={props.labelClassName || "ml-3"}>{props.label}</span>
-			)}
 		</div>
 	)
 }

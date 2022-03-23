@@ -19,7 +19,6 @@ export interface IUser {
 
 export interface IModelConfig {
 	models: IModel[]
-	relationships: IRelationship[]
 }
 
 export interface IModel {
@@ -33,14 +32,6 @@ export interface IField {
 	type: ModelTypes
 	required: boolean
 	defaultValue: string | number
-}
-
-export interface IRelationship {
-	type: RelationshipTypes
-	sourceField: string
-	sourceModel: string
-	targetField: string
-	targetModel: string
 }
 
 export interface IApiConfigs {
@@ -65,7 +56,6 @@ export interface IApiMethod {
 }
 
 export interface ISchema {
-	id?: string
 	model: Partial<IModel>
 	apiSchema?: Partial<IApiSchema>
 }
@@ -85,6 +75,7 @@ export type ModelTypes =
 	| "DATE"
 	| "OBJECT"
 	| "ARRAY"
+	| "BOOLEAN"
 
 export type ApiTypes = "REST"
 

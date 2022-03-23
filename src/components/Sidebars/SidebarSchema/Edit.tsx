@@ -1,5 +1,5 @@
-import { ISchema } from "@/src/types"
-import React, { FC } from "react"
+import { IField, IModel, ISchema } from "@/src/types"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import Sidebar from "../Sidebar"
 import useApiSchema from "@/src/hooks/useApiSchema"
 import useModel from "@/src/hooks/useModel"
@@ -15,6 +15,7 @@ import cloneObj from "@/src/utils/cloneObj"
 import Swal from "sweetalert2"
 import * as yup from "yup"
 import Toast from "../../Toast"
+import { ArrowNarrowRightIcon } from "@heroicons/react/outline"
 
 type OnSubmitHandler = (data: ISchema) => void
 type OnDeleteHandler = (id: string) => void
@@ -24,7 +25,7 @@ export interface EditProps {
 	schema: ISchema
 	onSubmit?: OnSubmitHandler
 	onDelete?: OnDeleteHandler
-	modelNames?: string[]
+	models?: Partial<IModel>[]
 }
 
 export const Edit: FC<EditProps> = (props) => {
@@ -39,17 +40,13 @@ export const Edit: FC<EditProps> = (props) => {
 		validateUniqueFieldName,
 	} = useModel(cloneObj(props.schema.model))
 
-	const {
-		apiSchema,
-		// getApiMethodColor,
-		handleChangeMethodApi,
-		handleResetApiSchema,
-	} = useApiSchema({
-		model,
-		apiSchema: props.schema.apiSchema
-			? cloneObj(props.schema.apiSchema)
-			: undefined,
-	})
+	const { apiSchema, handleChangeMethodApi, handleResetApiSchema } =
+		useApiSchema({
+			model,
+			apiSchema: props.schema.apiSchema
+				? cloneObj(props.schema.apiSchema)
+				: undefined,
+		})
 
 	const getApiMethodColor = (name: string) => {
 		switch (name) {
@@ -107,7 +104,7 @@ export const Edit: FC<EditProps> = (props) => {
 		validator
 			.validate({ model })
 			.then(async () => {
-				if (props.modelNames?.includes(model.name!)) {
+				if (props.models?.some((e) => e.name === model.name)) {
 					Toast({
 						type: "ERROR",
 						title: "Validation error",
@@ -125,7 +122,10 @@ export const Edit: FC<EditProps> = (props) => {
 					})
 
 					if (!result.isConfirmed) return
-					props.onSubmit?.call(this, { apiSchema, model, id: props.schema.id })
+					props.onSubmit?.call(this, {
+						apiSchema,
+						model,
+					})
 					handleClose()
 				}
 			})
@@ -144,8 +144,88 @@ export const Edit: FC<EditProps> = (props) => {
 		handleClose()
 	}
 
-	const handleDelete = () => {
-		props.onDelete?.call(this, props.schema.model._id || props.schema.id!)
+	const handleDelete = async () => {
+		const result = await Swal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#2680fe",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Yes, delete it!",
+		})
+
+		if (!result.isConfirmed) return
+
+		props.onDelete?.call(this, props.schema.model._id!)
+	}
+
+	const renderInput = (field: IField, index: number) => {
+		switch (field.type) {
+			case "STRING":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+			case "NUMBER":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						type="number"
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+			case "BOOLEAN":
+				return (
+					<Select
+						className="w-40"
+						value={field.defaultValue}
+						options={[
+							{ label: "True", value: true },
+							{ label: "False", value: false },
+						]}
+						onInitSelect={(value) => {
+							handleChangeField(value, "defaultValue", index)
+						}}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+					/>
+				)
+			case "DATE":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+						type="date"
+					/>
+				)
+			default:
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+		}
 	}
 
 	return (
@@ -165,7 +245,7 @@ export const Edit: FC<EditProps> = (props) => {
 				<div className="text-xl font-medium">Edit Schema</div>
 
 				<div className="mt-6">
-					<div className="mb-3">Model</div>
+					<div className="mb-3 font-medium">Model</div>
 					<Input
 						label="Model name"
 						name="Model name"
@@ -202,14 +282,15 @@ export const Edit: FC<EditProps> = (props) => {
 									}
 									disabled={isPrimaryKey(field)}
 								/>
-								<Input
+								{/* <Input
 									className="w-40"
 									value={field.defaultValue}
 									onChangeValue={(value) =>
 										handleChangeField(value, "defaultValue", index)
 									}
 									disabled={isPrimaryKey(field)}
-								/>
+								/> */}
+								{renderInput(field, index)}
 								<Checkbox
 									onChageValue={(value) =>
 										handleChangeField(value, "required", index)
@@ -232,7 +313,7 @@ export const Edit: FC<EditProps> = (props) => {
 						<button
 							type="button"
 							onClick={handleAddField}
-							className="bg-main-blue p-3 rounded-full mt-3 w-fit"
+							className="bg-main-blue p-3 rounded-full mt-3 w-fit hover:scale-110 transition-all"
 						>
 							<CloseSVG className="w-3 rotate-45 text-white" />
 						</button>
@@ -240,7 +321,7 @@ export const Edit: FC<EditProps> = (props) => {
 				</div>
 
 				<div className="mt-12">
-					<div className="mb-3">API</div>
+					<div className="mb-3 font-medium">API</div>
 					<div className="gap-x-3 mb-3 flex">
 						<div className="text-sm">Active</div>
 						{/* <div className="text-sm">Public</div> */}
@@ -249,7 +330,10 @@ export const Edit: FC<EditProps> = (props) => {
 					</div>
 					<div className="space-y-3">
 						{apiSchema.methods.map((method, index) => (
-							<div key={method.name} className="flex gap-x-3 items-center">
+							<div
+								key={method.name}
+								className="flex gap-x-3 items-center select-none"
+							>
 								<div
 									className="cursor-pointer w-9"
 									onClick={() =>

@@ -113,7 +113,7 @@ const Index: NextPage = () => {
 						</div>
 						<button
 							type="submit"
-							className="bg-main-blue w-full py-2 text-white rounded-lg"
+							className="bg-main-blue w-full py-3 text-white rounded-lg"
 						>
 							Create App
 						</button>

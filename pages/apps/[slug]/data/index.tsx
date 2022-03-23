@@ -5,7 +5,7 @@ import Select from "@/src/components/Forms/Select"
 import Pagination from "@/src/components/Pagination"
 import Table from "@/src/components/Table"
 import { useQuery } from "@apollo/client"
-import { IApp, IModel, ISchema, ModelTypes } from "@/src/types"
+import { IApp, IField, IModel, ISchema, ModelTypes } from "@/src/types"
 import { APP_BY_ID_QUERY } from "@/src/gql"
 import auth from "@/src/middlewares/auth"
 import axios from "axios"
@@ -329,6 +329,89 @@ const Index: NextPage<Props> = (props) => {
 
 	let handleCloseInsertSidebar: () => void
 
+	const renderInput = (field: IField, index: number) => {
+		switch (field.type) {
+			case "STRING":
+				return (
+					<Input
+						className="w-40"
+						placeholder={insertForm[field.name] || ""}
+						onChangeValue={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+					/>
+				)
+			case "NUMBER":
+				return (
+					<Input
+						className="w-40"
+						placeholder={insertForm[field.name] || ""}
+						type="number"
+						onChangeValue={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+					/>
+				)
+			case "BOOLEAN":
+				return (
+					<Select
+						className="w-40"
+						options={[
+							{ label: "True", value: true },
+							{ label: "False", value: false },
+						]}
+						value={insertForm[field.name] || ""}
+						onInitSelect={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+						onChangeValue={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+					/>
+				)
+			case "DATE":
+				return (
+					<Input
+						className="w-40"
+						value={insertForm[field.name] || ""}
+						onChangeValue={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+						type="date"
+					/>
+				)
+			default:
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(val) =>
+							setInsertForm((prev) => ({
+								...prev,
+								[field.name]: val,
+							}))
+						}
+						disabled
+					/>
+				)
+		}
+	}
+
 	return (
 		<div>
 			<Navbar />
@@ -483,7 +566,7 @@ const Index: NextPage<Props> = (props) => {
 																disabled
 															/>
 
-															<Input
+															{/* <Input
 																className="grown overflow-auto"
 																disabled={field.name === "_id"}
 																value={insertForm[field.name] || ""}
@@ -494,7 +577,8 @@ const Index: NextPage<Props> = (props) => {
 																		[field.name]: val,
 																	}))
 																}
-															/>
+															/> */}
+															{renderInput(field, index)}
 														</div>
 													))}
 												</div>

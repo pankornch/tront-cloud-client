@@ -26,7 +26,6 @@ import {
 	DELETE_SCHEMA_MUTATION,
 	SEARCH_USER_QUERY,
 	SEND_INVITE_MUTATION,
-	useGetMembersByApp,
 } from "@/src/gql"
 import { IApp, IMember, IUser } from "@/src/types"
 import auth from "@/src/middlewares/auth"
@@ -46,6 +45,7 @@ import Toast from "@/src/components/Toast"
 import useComponentClickOutside from "@/src/hooks/useComponentClickOutside"
 import LoadingSVG from "@/public/loading.svg"
 import { LoadingLayout } from "@/src/components/Loading/LoadingLayout"
+import LoadingOverLay from "@/src/components/Loading/LoadingOverlay"
 
 interface Props {
 	query: {
@@ -98,6 +98,8 @@ const App: FC = () => {
 
 		if (!result.isConfirmed) return
 
+		const stop = LoadingOverLay()
+
 		await updateApp({
 			variables: {
 				input: {
@@ -107,6 +109,8 @@ const App: FC = () => {
 				},
 			},
 		})
+
+		stop()
 
 		await Swal.fire({
 			title: "Updated!",
@@ -149,24 +153,29 @@ const App: FC = () => {
 			confirmButtonText: "Yes, delete it!",
 		})
 
-		if (result.isConfirmed) {
-			await deleteApp({
-				variables: {
-					input: {
-						_id: app!._id,
-					},
-				},
-			})
-			await Swal.fire({
-				title: "Deleted!",
-				text: "Your app has been deleted.",
-				icon: "success",
-				confirmButtonColor: "#2680fe",
-				timer: 1500,
-			})
+		if (!result.isConfirmed) return
 
-			router.replace("/apps")
-		}
+		const stop = LoadingOverLay()
+
+		await deleteApp({
+			variables: {
+				input: {
+					_id: app!._id,
+				},
+			},
+		})
+
+		stop()
+
+		await Swal.fire({
+			title: "Deleted!",
+			text: "Your app has been deleted.",
+			icon: "success",
+			confirmButtonColor: "#2680fe",
+			timer: 1500,
+		})
+
+		router.replace("/apps")
 	}
 
 	const $value = useCallback(
@@ -223,9 +232,9 @@ const App: FC = () => {
 				{isOwner && (
 					<>
 						{isEdit ? (
-							<>
+							<div className="space-y-3">
 								<button
-									type="submit"
+									type="button"
 									className="text-white bg-main-blue px-6 py-3 w-full rounded-lg mt-6"
 								>
 									Save
@@ -244,7 +253,7 @@ const App: FC = () => {
 								>
 									Delete
 								</button>
-							</>
+							</div>
 						) : (
 							<button
 								type="button"
@@ -273,6 +282,8 @@ const Schema: FC = () => {
 	}, [app])
 
 	const handleUpdate = async (schema: ISchema) => {
+		const stop = LoadingOverLay()
+		
 		await updateSchema({
 			variables: {
 				input: {
@@ -283,6 +294,7 @@ const Schema: FC = () => {
 			},
 		})
 
+		stop()
 		refetch?.call(this)
 
 		await Swal.fire({
@@ -295,6 +307,8 @@ const Schema: FC = () => {
 	}
 
 	const handleCreate = async (schema: ISchema) => {
+		const stop = LoadingOverLay()
+
 		await createSchema({
 			variables: {
 				input: {
@@ -304,7 +318,11 @@ const Schema: FC = () => {
 				},
 			},
 		})
+
+		stop()
+
 		refetch?.call(this)
+
 		await Swal.fire({
 			title: "Created!",
 			text: "Your schema has created.",
@@ -315,41 +333,35 @@ const Schema: FC = () => {
 	}
 
 	const handleDelete = async (id: String) => {
-		const result = await Swal.fire({
-			title: "Are you sure?",
-			text: "You won't be able to revert this!",
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonColor: "#2680fe",
-			cancelButtonColor: "#d33",
-			confirmButtonText: "Yes, delete it!",
+		const stop = LoadingOverLay()
+
+		await deleteSchema({
+			variables: {
+				input: {
+					modelId: id,
+					appId: app!._id,
+				},
+			},
 		})
 
-		if (result.isConfirmed) {
-			await deleteSchema({
-				variables: {
-					input: {
-						modelId: id,
-						appId: app!._id,
-					},
-				},
-			})
+		stop()
 
-			refetch?.call(this)
+		refetch?.call(this)
 
-			Swal.fire({
-				title: "Deleted!",
-				text: "Your app has been deleted.",
-				icon: "success",
-				confirmButtonColor: "#2680fe",
-				timer: 1500,
-			})
-		}
+		Swal.fire({
+			title: "Deleted!",
+			text: "Your app has been deleted.",
+			icon: "success",
+			confirmButtonColor: "#2680fe",
+			timer: 1500,
+		})
 	}
 
-	const modelNames = useMemo(() => {
+	const models = useMemo(() => {
 		if (!app) return []
-		return app.modelConfigs.models.map((e) => e.name)
+		return (
+			app.modelConfigs.models.map((e) => ({ _id: e._id, name: e.name })) || []
+		)
 	}, [app])
 
 	return (
@@ -366,12 +378,13 @@ const Schema: FC = () => {
 
 				<SidebarSchema.Create
 					label={
-						<div className=" bg-main-blue px-6 py-2 rounded-lg text-white">
+						<div className=" bg-main-blue px-6 py-2 rounded-lg text-white hover:scale-110 transition-all">
 							New Schema
 						</div>
 					}
 					onSubmit={handleCreate}
-					modelNames={modelNames}
+					// modelNames={modelNames}
+					models={models}
 				/>
 				{schemas.map((schema) => (
 					<div key={schema.model._id} className="flex items-center gap-x-3">
@@ -385,7 +398,7 @@ const Schema: FC = () => {
 						</a>
 						<SidebarSchema.View
 							label={
-								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:scale-110 transition-all">
 									View
 								</div>
 							}
@@ -394,17 +407,18 @@ const Schema: FC = () => {
 
 						<SidebarSchema.Edit
 							label={
-								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+								<div className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:scale-110 transition-all">
 									Edit
 								</div>
 							}
 							schema={schema}
 							onSubmit={handleUpdate}
 							onDelete={handleDelete}
+							models={models.filter((e) => e.name !== schema.model.name)}
 						/>
 
 						<Link href={`/apps/${app!.slug}/data?model=${schema.model.name}`}>
-							<a className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:-translate-y-1 transition ease-in-out delay-150 hover:scale-110 duration-300">
+							<a className="bg-main-blue text-white px-3 py-1 rounded-lg cursor-pointer hover:scale-110 transition-all">
 								Data
 							</a>
 						</Link>

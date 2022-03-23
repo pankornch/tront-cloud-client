@@ -4,7 +4,7 @@ import ArrowSVG from "@/public/arrow-down.svg"
 
 interface Props {
 	label?: string
-	options?: IOption[] | string[] | number[]
+	options?: IOption[] | string[] | number[] | any[]
 	onBlur?: React.FocusEventHandler<HTMLSelectElement>
 	onChange?: React.ChangeEventHandler<HTMLSelectElement>
 	onChangeValue?: ChangeValueHandler<any>

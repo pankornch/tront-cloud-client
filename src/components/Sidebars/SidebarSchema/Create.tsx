@@ -1,5 +1,5 @@
 import { dataTypes } from "@/src/utils/constants"
-import React, { FC } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import Checkbox from "../../Forms/Checkbox"
 import Input from "../../Forms/Input"
 import Select from "../../Forms/Select"
@@ -9,17 +9,19 @@ import useModel from "@/src/hooks/useModel"
 import useApiSchema from "@/src/hooks/useApiSchema"
 import PublicSVG from "@/public/public.svg"
 import PrivateSVG from "@/public/lock.svg"
-import { ISchema } from "@/src/types"
+import { IField, IModel, ISchema, ModelTypes } from "@/src/types"
 import shortId from "shortid"
 import * as yup from "yup"
 import Toast from "../../Toast"
+import { ArrowNarrowRightIcon } from "@heroicons/react/outline"
+import cloneObj from "@/src/utils/cloneObj"
 
 type OnSubmitHandler = (data: ISchema) => void
 
 export interface CreateProps {
 	label?: JSX.Element | string
 	onSubmit?: OnSubmitHandler
-	modelNames?: string[]
+	models?: Partial<IModel>[]
 }
 
 const Create: FC<CreateProps> = (props) => {
@@ -95,7 +97,7 @@ const Create: FC<CreateProps> = (props) => {
 		validator
 			.validate({ model })
 			.then(() => {
-				if (props.modelNames?.includes(model.name!)) {
+				if (props.models?.some((e) => e.name === model.name)) {
 					Toast({
 						type: "ERROR",
 						title: "Validation error",
@@ -105,7 +107,6 @@ const Create: FC<CreateProps> = (props) => {
 					props.onSubmit?.call(this, {
 						model,
 						apiSchema,
-						id: shortId.generate(),
 					})
 					handleClose()
 				}
@@ -113,6 +114,73 @@ const Create: FC<CreateProps> = (props) => {
 			.catch((e) => {
 				Toast({ type: "ERROR", title: "Validation error", body: e.message })
 			})
+	}
+
+	const renderInput = (field: IField, index: number) => {
+		switch (field.type) {
+			case "STRING":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+			case "NUMBER":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						type="number"
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+			case "BOOLEAN":
+				return (
+					<Select
+						className="w-40"
+						options={[
+							{ label: "True", value: true },
+							{ label: "False", value: false },
+						]}
+						onInitSelect={(value) => {
+							handleChangeField(value, "defaultValue", index)
+						}}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+					/>
+				)
+			case "DATE":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+						type="date"
+					/>
+				)
+			default:
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={isPrimaryKey(field)}
+					/>
+				)
+		}
 	}
 
 	return (
@@ -135,11 +203,12 @@ const Create: FC<CreateProps> = (props) => {
 			<div className="text-xl font-medium">Create Schema</div>
 
 			<div className="mt-6">
-				<div className="mb-3">Model</div>
+				<div className="mb-3 font-medium">Model</div>
 				<Input
 					label="Model name"
 					name="Model name"
 					onChangeValue={handleChangeModelName}
+					value={model.name || ""}
 					required
 				/>
 
@@ -164,21 +233,22 @@ const Create: FC<CreateProps> = (props) => {
 							/>
 							<Select
 								className="w-40"
-								options={dataTypes}
+								options={dataTypes.filter(e => e.value !== "OBJECT_ID")}
 								value={field.type}
-								onChangeValue={(value) =>
+								onChangeValue={(value) => {
 									handleChangeField(value, "type", index)
-								}
+								}}
 								disabled={isPrimaryKey(field)}
 							/>
-							<Input
+							{/* <Input
 								className="w-40"
 								value={field.defaultValue}
 								onChangeValue={(value) =>
 									handleChangeField(value, "defaultValue", index)
 								}
 								disabled={isPrimaryKey(field)}
-							/>
+							/> */}
+							{renderInput(field, index)}
 							<Checkbox
 								onChageValue={(value) =>
 									handleChangeField(value, "required", index)
@@ -201,7 +271,7 @@ const Create: FC<CreateProps> = (props) => {
 					<button
 						type="button"
 						onClick={handleAddField}
-						className="bg-main-blue p-3 rounded-full mt-3 w-fit"
+						className="bg-main-blue p-3 rounded-full mt-3 w-fit hover:scale-110 transition-all"
 					>
 						<CloseSVG className="w-3 rotate-45 text-white" />
 					</button>
@@ -209,7 +279,7 @@ const Create: FC<CreateProps> = (props) => {
 			</div>
 
 			<div className="mt-12">
-				<div className="mb-3">API</div>
+				<div className="mb-3 font-medium">API</div>
 				<div className="gap-x-3 mb-3 flex">
 					<div className="text-sm">Active</div>
 					{/* <div className="text-sm">Public</div> */}
@@ -218,7 +288,10 @@ const Create: FC<CreateProps> = (props) => {
 				</div>
 				<div className="space-y-3">
 					{apiSchema.methods.map((method, index) => (
-						<div key={method.name} className="flex gap-x-3 items-center">
+						<div
+							key={method.name}
+							className="flex gap-x-3 items-center select-none"
+						>
 							<div
 								className="cursor-pointer w-9"
 								onClick={() =>
@@ -236,11 +309,13 @@ const Create: FC<CreateProps> = (props) => {
 								{statusIcon(method.public)}
 							</div> */}
 							<span
-								className={`${getApiMethodColor(method.name)} font-medium w-20`}
+								className={`${getApiMethodColor(
+									method.name
+								)} ml-3 font-medium w-16`}
 							>
 								{method.name.startsWith("GET") ? "GET" : method.name}
 							</span>
-							<span>{method.pathname}</span>
+							<span className="ml-2">{method.pathname}</span>
 						</div>
 					))}
 				</div>
@@ -248,7 +323,7 @@ const Create: FC<CreateProps> = (props) => {
 
 			<button
 				type="button"
-				className="bg-main-blue text-white rounded-lg py-2 text-center cursor-pointer w-full mt-12"
+				className="bg-main-blue text-white rounded-lg py-3 text-center cursor-pointer w-full mt-12"
 				onClick={handleSubmit}
 			>
 				Submit

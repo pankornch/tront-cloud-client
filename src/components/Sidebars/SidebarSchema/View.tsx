@@ -1,6 +1,6 @@
 import useApiSchema from "@/src/hooks/useApiSchema"
 import useModel from "@/src/hooks/useModel"
-import { ISchema } from "@/src/types"
+import { IField, ISchema } from "@/src/types"
 import cloneObj from "@/src/utils/cloneObj"
 import React, { FC } from "react"
 
@@ -64,6 +64,71 @@ const View: FC<ViewProps> = (props) => {
 		)
 	}
 
+	const renderInput = (field: IField, index: number) => {
+		switch (field.type) {
+			case "STRING":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={true}
+					/>
+				)
+			case "NUMBER":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						type="number"
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={true}
+					/>
+				)
+			case "BOOLEAN":
+				return (
+					<Select
+						className="w-40"
+						value={field.defaultValue}
+						options={[
+							{ label: "True", value: true },
+							{ label: "False", value: false },
+						]}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+					/>
+				)
+			case "DATE":
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={true}
+						type="date"
+					/>
+				)
+			default:
+				return (
+					<Input
+						className="w-40"
+						value={field.defaultValue}
+						onChangeValue={(value) =>
+							handleChangeField(value, "defaultValue", index)
+						}
+						disabled={true}
+					/>
+				)
+		}
+	}
+
 	return (
 		<Sidebar.Button
 			label={
@@ -113,12 +178,13 @@ const View: FC<ViewProps> = (props) => {
 									value={field.type}
 									disabled
 								/>
-								<Input
+								{/* <Input
 									className="w-40"
 									value={field.defaultValue}
 									readOnly
 									disabled
-								/>
+								/> */}
+								{renderInput(field, index)}
 								<Checkbox
 									onChageValue={(value) =>
 										handleChangeField(value, "required", index)

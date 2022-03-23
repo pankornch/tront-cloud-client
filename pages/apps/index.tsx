@@ -183,16 +183,21 @@ const Index: NextPage = () => {
 						{data?.apps.map((app) => (
 							<div
 								key={app._id}
-								className="shadow-lg rounded-lg px-6 py-4 border border-gray-100 hover:ring hover:ring-main-blue-light hover:scale-110 transition-all"
+								className="shadow-lg rounded-lg px-6 py-4 border border-gray-100 hover:ring hover:ring-main-blue-light hover:scale-105 transition-all"
 							>
 								<div className="flex justify-between items-center">
 									<div className="text-xl font-semibold">{app.name}</div>
+
 									<span className="text-xs">
 										{dateFormat(app.createdAt as string)}
 									</span>
 									{/* <div className="text-main-green text-lg">
 									{getStatus(app.active!)}
 								</div> */}
+								</div>
+								<div>
+									<span className="font-semibold mt-2">Slug: </span>
+									<span>{app.slug}</span>
 								</div>
 								{app?.apiConfigs?.apiTypes?.map((api) => (
 									<div key={api.type} className="text-sm my-3 flex">
