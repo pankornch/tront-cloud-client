@@ -277,7 +277,6 @@ const Index: NextPage<Props> = (props) => {
 				})
 				return
 			}
-
 			const url = isEdit ? `${apiUrl}/${insertForm._id}` : apiUrl
 			const method = isEdit ? "patch" : "post"
 
@@ -306,6 +305,7 @@ const Index: NextPage<Props> = (props) => {
 			}
 
 			delete insertForm._id
+			delete insertForm.__v
 
 			await axios({
 				url,
@@ -388,7 +388,11 @@ const Index: NextPage<Props> = (props) => {
 				return (
 					<Input
 						className="w-40"
-						value={insertForm[field.name] || ""}
+						value={
+							isEdit
+								? insertForm[field.name]?.split("T")[0] || ""
+								: insertForm[field.name] || ""
+						}
 						onChangeValue={(val) =>
 							setInsertForm((prev) => ({
 								...prev,
